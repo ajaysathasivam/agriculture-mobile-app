@@ -52,7 +52,6 @@ export const Register = ({ onNavigate }) => {
     setTimeout(() => {
       setIsLoading(false);
       triggerToast('Account created successfully!', 'success');
-      triggerToast('Account created successfull1!', 'success');
       
       setTimeout(() => {
         onNavigate('login');
