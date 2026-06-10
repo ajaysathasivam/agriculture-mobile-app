@@ -10,22 +10,28 @@ import {
   SafeAreaView
 } from 'react-native';
 import { MaterialIcons, MaterialCommunityIcons } from '@expo/vector-icons';
+import { Formik } from 'formik';
+import * as Yup from 'yup';
 import { Input } from '../components/Input';
 import { Button } from '../components/Button';
 import { Toast } from '../components/Toast';
 import { useStore } from '../store/useStore';
 
+// Login Validation Schema
+const loginSchema = Yup.object().shape({
+  email: Yup.string()
+    .email('Please enter a valid email address')
+    .required('Email address is required'),
+  password: Yup.string()
+    .min(6, 'Password must be at least 6 characters')
+    .required('Password is required'),
+});
+
 export const Login = ({ onNavigate }) => {
   const loginAction = useStore((state) => state.login);
-  const [email, setEmail] = useState('farmer@sprout.com');
-  const [password, setPassword] = useState('password123');
   const [showPassword, setShowPassword] = useState(false);
   const [rememberMe, setRememberMe] = useState(true);
   const [isLoading, setIsLoading] = useState(false);
-
-  // Errors
-  const [emailError, setEmailError] = useState('');
-  const [passwordError, setPasswordError] = useState('');
 
   // Toast
   const [toastMessage, setToastMessage] = useState('');
@@ -38,43 +44,14 @@ export const Login = ({ onNavigate }) => {
     setIsToastOpen(true);
   };
 
-  const handleLogin = () => {
-    let isValid = true;
-
-    // Email
-    if (!email) {
-      setEmailError('Email address is required');
-      isValid = false;
-    } else if (!/\S+@\S+\.\S+/.test(email)) {
-      setEmailError('Please enter a valid email address');
-      isValid = false;
-    } else {
-      setEmailError('');
-    }
-
-    // Password
-    if (!password) {
-      setPasswordError('Password is required');
-      isValid = false;
-    } else if (password.length < 6) {
-      setPasswordError('Password must be at least 6 characters');
-      isValid = false;
-    } else {
-      setPasswordError('');
-    }
-
-    if (!isValid) {
-      triggerToast('Please fix the validation errors.', 'error');
-      return;
-    }
-
+  const handleLoginSubmit = (values) => {
     setIsLoading(true);
     setTimeout(() => {
       setIsLoading(false);
       triggerToast('Signed in successfully!', 'success');
       
       setTimeout(() => {
-        loginAction({ name: 'John Miller', email: email });
+        loginAction({ name: 'John Miller', email: values.email });
       }, 1000);
     }, 1500);
   };
@@ -85,98 +62,102 @@ export const Login = ({ onNavigate }) => {
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
         style={styles.keyboardView}
       >
-        <ScrollView 
-          contentContainerStyle={styles.scrollContent}
-          showsVerticalScrollIndicator={false}
+        <Formik
+          initialValues={{ email: 'farmer@sprout.com', password: 'password123' }}
+          validationSchema={loginSchema}
+          onSubmit={handleLoginSubmit}
         >
-          {/* Logo & Branding */}
-          <View style={styles.header}>
-            <View style={styles.logoBadge}>
-              <MaterialCommunityIcons name="sprout" size={32} color="#ffffff" />
-            </View>
-            <Text style={styles.logoText}>Sprout</Text>
-            <Text style={styles.subtext}>SMART FARM PORTAL</Text>
-            <Text style={styles.description}>
-              Access soil insights, monitor crop irrigation, and manage harvest yields.
-            </Text>
-          </View>
-
-          {/* Form */}
-          <View style={styles.form}>
-            <Input
-              label="Email Address"
-              placeholder="farmer@sprout.com"
-              keyboardType="email-address"
-              value={email}
-              onChangeText={(text) => {
-                setEmail(text);
-                if (emailError) setEmailError('');
-              }}
-              error={emailError}
-              leftIcon={<MaterialIcons name="email" size={18} color="#9ca3af" />}
-            />
-
-            <Input
-              label="Password"
-              placeholder="••••••••"
-              secureTextEntry={!showPassword}
-              value={password}
-              onChangeText={(text) => {
-                setPassword(text);
-                if (passwordError) setPasswordError('');
-              }}
-              error={passwordError}
-              leftIcon={<MaterialIcons name="lock" size={18} color="#9ca3af" />}
-              rightIcon={
-                <TouchableOpacity 
-                  onPress={() => setShowPassword(!showPassword)}
-                  hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
-                >
-                  <MaterialIcons 
-                    name={showPassword ? "visibility-off" : "visibility"} 
-                    size={18} 
-                    color="#9ca3af" 
-                  />
-                </TouchableOpacity>
-              }
-            />
-
-            {/* Extra Rows */}
-            <View style={styles.rememberRow}>
-              <TouchableOpacity 
-                style={styles.checkboxContainer} 
-                onPress={() => setRememberMe(!rememberMe)}
-                activeOpacity={0.8}
-              >
-                <View style={[styles.checkbox, rememberMe && styles.checkboxChecked]}>
-                  {rememberMe && <MaterialIcons name="check" size={12} color="#ffffff" />}
-                </View>
-                <Text style={styles.checkboxLabel}>Remember me</Text>
-              </TouchableOpacity>
-
-              <TouchableOpacity onPress={() => triggerToast('Reset password link sent (simulated).', 'info')}>
-                <Text style={styles.forgotText}>Forgot Password?</Text>
-              </TouchableOpacity>
-            </View>
-
-            <Button 
-              onPress={handleLogin} 
-              isLoading={isLoading}
-              style={styles.submitButton}
+          {({ handleChange, handleBlur, handleSubmit, values, errors, touched }) => (
+            <ScrollView 
+              contentContainerStyle={styles.scrollContent}
+              showsVerticalScrollIndicator={false}
             >
-              Sign In to Farm
-            </Button>
-          </View>
+              {/* Logo & Branding */}
+              <View style={styles.header}>
+                <View style={styles.logoBadge}>
+                  <MaterialCommunityIcons name="sprout" size={32} color="#ffffff" />
+                </View>
+                <Text style={styles.logoText}>Sprout</Text>
+                <Text style={styles.subtext}>SMART FARM PORTAL</Text>
+                <Text style={styles.description}>
+                  Access soil insights, monitor crop irrigation, and manage harvest yields.
+                </Text>
+              </View>
 
-          {/* Navigation Footer */}
-          <View style={styles.footer}>
-            <Text style={styles.footerText}>Don't have an account? </Text>
-            <TouchableOpacity onPress={() => onNavigate('register')}>
-              <Text style={styles.signUpLink}>Sign Up</Text>
-            </TouchableOpacity>
-          </View>
+              {/* Form */}
+              <View style={styles.form}>
+                <Input
+                  label="Email Address"
+                  placeholder="farmer@sprout.com"
+                  keyboardType="email-address"
+                  value={values.email}
+                  onChangeText={handleChange('email')}
+                  onBlur={handleBlur('email')}
+                  error={touched.email && errors.email}
+                  leftIcon={<MaterialIcons name="email" size={18} color="#9ca3af" />}
+                />
 
-        </ScrollView>
+                <Input
+                  label="Password"
+                  placeholder="••••••••"
+                  secureTextEntry={!showPassword}
+                  value={values.password}
+                  onChangeText={handleChange('password')}
+                  onBlur={handleBlur('password')}
+                  error={touched.password && errors.password}
+                  leftIcon={<MaterialIcons name="lock" size={18} color="#9ca3af" />}
+                  rightIcon={
+                    <TouchableOpacity 
+                      onPress={() => setShowPassword(!showPassword)}
+                      hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+                    >
+                      <MaterialIcons 
+                        name={showPassword ? "visibility-off" : "visibility"} 
+                        size={18} 
+                        color="#9ca3af" 
+                      />
+                    </TouchableOpacity>
+                  }
+                />
+
+                {/* Extra Rows */}
+                <View style={styles.rememberRow}>
+                  <TouchableOpacity 
+                    style={styles.checkboxContainer} 
+                    onPress={() => setRememberMe(!rememberMe)}
+                    activeOpacity={0.8}
+                  >
+                    <View style={[styles.checkbox, rememberMe && styles.checkboxChecked]}>
+                      {rememberMe && <MaterialIcons name="check" size={12} color="#ffffff" />}
+                    </View>
+                    <Text style={styles.checkboxLabel}>Remember me</Text>
+                  </TouchableOpacity>
+
+                  <TouchableOpacity onPress={() => triggerToast('Reset password link sent (simulated).', 'info')}>
+                    <Text style={styles.forgotText}>Forgot Password?</Text>
+                  </TouchableOpacity>
+                </View>
+
+                <Button 
+                  onPress={handleSubmit} 
+                  isLoading={isLoading}
+                  style={styles.submitButton}
+                >
+                  Sign In to Farm
+                </Button>
+              </View>
+
+              {/* Navigation Footer */}
+              <View style={styles.footer}>
+                <Text style={styles.footerText}>Don't have an account? </Text>
+                <TouchableOpacity onPress={() => onNavigate('register')}>
+                  <Text style={styles.signUpLink}>Sign Up</Text>
+                </TouchableOpacity>
+              </View>
+
+            </ScrollView>
+          )}
+        </Formik>
       </KeyboardAvoidingView>
 
       <Toast
@@ -221,6 +202,9 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.2,
     shadowRadius: 8,
     elevation: 4,
+  },
+  logoEmoji: {
+    fontSize: 32,
   },
   logoText: {
     fontSize: 24,
