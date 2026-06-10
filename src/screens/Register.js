@@ -9,6 +9,7 @@ import {
   ScrollView,
   SafeAreaView
 } from 'react-native';
+import { MaterialIcons } from '@expo/vector-icons';
 import { Input } from '../components/Input';
 import { Button } from '../components/Button';
 import { Toast } from '../components/Toast';
@@ -135,7 +136,7 @@ export const Register = ({ onNavigate }) => {
                 if (fullNameError) setFullNameError('');
               }}
               error={fullNameError}
-              leftIcon={<Text style={styles.inputIcon}>🧑‍🌾</Text>}
+              leftIcon={<MaterialIcons name="person" size={18} color="#9ca3af" />}
             />
 
             <Input
@@ -148,7 +149,7 @@ export const Register = ({ onNavigate }) => {
                 if (emailError) setEmailError('');
               }}
               error={emailError}
-              leftIcon={<Text style={styles.inputIcon}>📧</Text>}
+              leftIcon={<MaterialIcons name="email" size={18} color="#9ca3af" />}
             />
 
             <Input
@@ -161,10 +162,10 @@ export const Register = ({ onNavigate }) => {
                 if (passwordError) setPasswordError('');
               }}
               error={passwordError}
-              leftIcon={<Text style={styles.inputIcon}>🔒</Text>}
+              leftIcon={<MaterialIcons name="lock" size={18} color="#9ca3af" />}
               rightIcon={
                 <TouchableOpacity onPress={() => setShowPassword(!showPassword)}>
-                  <Text style={styles.inputIcon}>{showPassword ? '👁️' : '👁️‍🗨️'}</Text>
+                  <MaterialIcons name={showPassword ? "visibility-off" : "visibility"} size={18} color="#9ca3af" />
                 </TouchableOpacity>
               }
             />
@@ -179,7 +180,7 @@ export const Register = ({ onNavigate }) => {
                 if (confirmPasswordError) setConfirmPasswordError('');
               }}
               error={confirmPasswordError}
-              leftIcon={<Text style={styles.inputIcon}>🔒</Text>}
+              leftIcon={<MaterialIcons name="lock" size={18} color="#9ca3af" />}
             />
 
             {/* Terms checkbox */}
@@ -190,7 +191,7 @@ export const Register = ({ onNavigate }) => {
                 activeOpacity={0.8}
               >
                 <View style={[styles.checkbox, agreeTerms && styles.checkboxChecked]}>
-                  {agreeTerms && <Text style={styles.checkMark}>✓</Text>}
+                  {agreeTerms && <MaterialIcons name="check" size={12} color="#ffffff" />}
                 </View>
                 <Text style={styles.termsLabel}>
                   I agree to the <Text style={styles.linkText}>Terms of Service</Text> and <Text style={styles.linkText}>Privacy Policy</Text>.
@@ -263,9 +264,6 @@ const styles = StyleSheet.create({
     width: '100%',
     marginBottom: 32,
   },
-  inputIcon: {
-    fontSize: 16,
-  },
   termsRow: {
     marginTop: 4,
     marginBottom: 24,
@@ -289,11 +287,6 @@ const styles = StyleSheet.create({
   checkboxChecked: {
     backgroundColor: '#059669',
     borderColor: '#059669',
-  },
-  checkMark: {
-    color: '#ffffff',
-    fontSize: 11,
-    fontWeight: 'bold',
   },
   termsLabel: {
     flex: 1,

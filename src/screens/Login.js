@@ -9,6 +9,7 @@ import {
   ScrollView,
   SafeAreaView
 } from 'react-native';
+import { MaterialIcons, MaterialCommunityIcons } from '@expo/vector-icons';
 import { Input } from '../components/Input';
 import { Button } from '../components/Button';
 import { Toast } from '../components/Toast';
@@ -71,6 +72,7 @@ export const Login = ({ onNavigate }) => {
     setTimeout(() => {
       setIsLoading(false);
       triggerToast('Signed in successfully!', 'success');
+      
       setTimeout(() => {
         loginAction({ name: 'John Miller', email: email });
       }, 1000);
@@ -90,7 +92,7 @@ export const Login = ({ onNavigate }) => {
           {/* Logo & Branding */}
           <View style={styles.header}>
             <View style={styles.logoBadge}>
-              <Text style={styles.logoEmoji}>🌱</Text>
+              <MaterialCommunityIcons name="sprout" size={32} color="#ffffff" />
             </View>
             <Text style={styles.logoText}>Sprout</Text>
             <Text style={styles.subtext}>SMART FARM PORTAL</Text>
@@ -111,7 +113,7 @@ export const Login = ({ onNavigate }) => {
                 if (emailError) setEmailError('');
               }}
               error={emailError}
-              leftIcon={<Text style={styles.inputIcon}>📧</Text>}
+              leftIcon={<MaterialIcons name="email" size={18} color="#9ca3af" />}
             />
 
             <Input
@@ -124,13 +126,17 @@ export const Login = ({ onNavigate }) => {
                 if (passwordError) setPasswordError('');
               }}
               error={passwordError}
-              leftIcon={<Text style={styles.inputIcon}>🔒</Text>}
+              leftIcon={<MaterialIcons name="lock" size={18} color="#9ca3af" />}
               rightIcon={
                 <TouchableOpacity 
                   onPress={() => setShowPassword(!showPassword)}
                   hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
                 >
-                  <Text style={styles.inputIcon}>{showPassword ? '👁️' : '👁️‍🗨️'}</Text>
+                  <MaterialIcons 
+                    name={showPassword ? "visibility-off" : "visibility"} 
+                    size={18} 
+                    color="#9ca3af" 
+                  />
                 </TouchableOpacity>
               }
             />
@@ -143,7 +149,7 @@ export const Login = ({ onNavigate }) => {
                 activeOpacity={0.8}
               >
                 <View style={[styles.checkbox, rememberMe && styles.checkboxChecked]}>
-                  {rememberMe && <Text style={styles.checkMark}>✓</Text>}
+                  {rememberMe && <MaterialIcons name="check" size={12} color="#ffffff" />}
                 </View>
                 <Text style={styles.checkboxLabel}>Remember me</Text>
               </TouchableOpacity>
@@ -216,9 +222,6 @@ const styles = StyleSheet.create({
     shadowRadius: 8,
     elevation: 4,
   },
-  logoEmoji: {
-    fontSize: 32,
-  },
   logoText: {
     fontSize: 24,
     fontWeight: '900',
@@ -243,9 +246,6 @@ const styles = StyleSheet.create({
   form: {
     width: '100%',
     marginBottom: 40,
-  },
-  inputIcon: {
-    fontSize: 16,
   },
   rememberRow: {
     flexDirection: 'row',
@@ -272,11 +272,6 @@ const styles = StyleSheet.create({
   checkboxChecked: {
     backgroundColor: '#059669',
     borderColor: '#059669',
-  },
-  checkMark: {
-    color: '#ffffff',
-    fontSize: 11,
-    fontWeight: 'bold',
   },
   checkboxLabel: {
     fontSize: 12,

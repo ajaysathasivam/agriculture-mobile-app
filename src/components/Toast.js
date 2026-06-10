@@ -1,5 +1,6 @@
 import React, { useEffect } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
+import { MaterialIcons } from '@expo/vector-icons';
 
 export const Toast = ({ 
   isOpen, 
@@ -19,13 +20,23 @@ export const Toast = ({
 
   if (!isOpen) return null;
 
-  const getEmoji = () => {
+  const getIconName = () => {
     switch(type) {
-      case 'success': return '🌱';
-      case 'warning': return '⚠️';
-      case 'error': return '❌';
-      case 'info': return 'ℹ️';
-      default: return '🌱';
+      case 'success': return 'check-circle';
+      case 'warning': return 'warning';
+      case 'error': return 'error';
+      case 'info': return 'info';
+      default: return 'check-circle';
+    }
+  };
+
+  const getIconColor = () => {
+    switch(type) {
+      case 'success': return '#059669';
+      case 'warning': return '#d97706';
+      case 'error': return '#dc2626';
+      case 'info': return '#2563eb';
+      default: return '#059669';
     }
   };
 
@@ -46,7 +57,12 @@ export const Toast = ({
         onPress={onClose}
         activeOpacity={0.9}
       >
-        <Text style={styles.emoji}>{getEmoji()}</Text>
+        <MaterialIcons 
+          name={getIconName()} 
+          size={20} 
+          color={getIconColor()} 
+          style={styles.icon}
+        />
         <Text style={styles.text}>{message}</Text>
       </TouchableOpacity>
     </View>
@@ -92,8 +108,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#eff6ff',
     borderColor: '#bfdbfe',
   },
-  emoji: {
-    fontSize: 16,
+  icon: {
     marginRight: 10,
   },
   text: {

@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { StyleSheet, View, Text, SafeAreaView } from 'react-native';
 import { StatusBar } from 'expo-status-bar';
+import { MaterialIcons } from '@expo/vector-icons';
 import { Login } from './src/screens/Login';
 import { Register } from './src/screens/Register';
 import { Button } from './src/components/Button';
@@ -46,7 +47,9 @@ export default function App() {
       ) : (
         <SafeAreaView style={styles.homeContainer}>
           <View style={styles.homeContent}>
-            <Text style={styles.homeEmoji}>🧑‍🌾</Text>
+            <View style={styles.homeIconContainer}>
+              <MaterialIcons name="agriculture" size={48} color="#059669" />
+            </View>
             <Text style={styles.homeWelcome}>Welcome to Sprout!</Text>
             <Text style={styles.homeFarmerName}>{user?.name || 'Farmer'}</Text>
             <Text style={styles.homeSubtitle}>
@@ -104,8 +107,13 @@ const styles = StyleSheet.create({
     shadowRadius: 10,
     elevation: 3,
   },
-  homeEmoji: {
-    fontSize: 48,
+  homeIconContainer: {
+    width: 80,
+    height: 80,
+    borderRadius: 40,
+    backgroundColor: '#ecfdf5',
+    alignItems: 'center',
+    justifyContent: 'center',
     marginBottom: 16,
   },
   homeWelcome: {
