@@ -12,8 +12,10 @@ import {
 import { Input } from '../components/Input';
 import { Button } from '../components/Button';
 import { Toast } from '../components/Toast';
+import { useStore } from '../store/useStore';
 
-export const Login = ({ onNavigate, onLoginSuccess }) => {
+export const Login = ({ onNavigate }) => {
+  const loginAction = useStore((state) => state.login);
   const [email, setEmail] = useState('farmer@sprout.com');
   const [password, setPassword] = useState('password123');
   const [showPassword, setShowPassword] = useState(false);
@@ -69,9 +71,8 @@ export const Login = ({ onNavigate, onLoginSuccess }) => {
     setTimeout(() => {
       setIsLoading(false);
       triggerToast('Signed in successfully!', 'success');
-      
       setTimeout(() => {
-        onLoginSuccess('John Miller');
+        loginAction({ name: 'John Miller', email: email });
       }, 1000);
     }, 1500);
   };

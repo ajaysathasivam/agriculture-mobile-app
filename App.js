@@ -5,12 +5,18 @@ import { Login } from './src/screens/Login';
 import { Register } from './src/screens/Register';
 import { Button } from './src/components/Button';
 import { Toast } from './src/components/Toast';
+import { useStore } from './src/store/useStore';
 
 export default function App() {
+  // Local toggle for navigation between Login and Register when unauthenticated
   const [currentScreen, setCurrentScreen] = useState('login');
-  const [farmerName, setFarmerName] = useState('');
 
-  // Global toast notifications
+  // Zustand Store Hooks
+  const user = useStore((state) => state.user);
+  const isAuthenticated = useStore((state) => state.isAuthenticated);
+  const logoutAction = useStore((state) => state.logout);
+
+  // Toast notifications state
   const [toastMessage, setToastMessage] = useState('');
   const [toastType, setToastType] = useState('success');
   const [isToastOpen, setIsToastOpen] = useState(false);
@@ -21,35 +27,28 @@ export default function App() {
     setIsToastOpen(true);
   };
 
-  const handleLoginSuccess = (name) => {
-    setFarmerName(name);
-    triggerToast(`Welcome back, ${name}! 🌱`, 'success');
-    setTimeout(() => {
-      setCurrentScreen('home');
-    }, 800);
-  };
-
   return (
     <View style={styles.container}>
-      {currentScreen === 'login' && (
-        <Login 
-          onNavigate={setCurrentScreen} 
-          onLoginSuccess={handleLoginSuccess}
-        />
-      )}
+      {!isAuthenticated ? (
+        <>
+          {currentScreen === 'login' && (
+            <Login 
+              onNavigate={setCurrentScreen} 
+            />
+          )}
 
-      {currentScreen === 'register' && (
-        <Register 
-          onNavigate={setCurrentScreen}
-        />
-      )}
-
-      {currentScreen === 'home' && (
+          {currentScreen === 'register' && (
+            <Register 
+              onNavigate={setCurrentScreen}
+            />
+          )}
+        </>
+      ) : (
         <SafeAreaView style={styles.homeContainer}>
           <View style={styles.homeContent}>
             <Text style={styles.homeEmoji}>🧑‍🌾</Text>
             <Text style={styles.homeWelcome}>Welcome to Sprout!</Text>
-            <Text style={styles.homeFarmerName}>{farmerName}</Text>
+            <Text style={styles.homeFarmerName}>{user?.name || 'Farmer'}</Text>
             <Text style={styles.homeSubtitle}>
               Your mobile farm assistant is ready. We will start migrating the fields and sowing logs next.
             </Text>
@@ -57,11 +56,8 @@ export default function App() {
             <Button 
               variant="outline" 
               onPress={() => {
+                logoutAction();
                 triggerToast('Signed out successfully.', 'info');
-                setTimeout(() => {
-                  setCurrentScreen('login');
-                  setFarmerName('');
-                }, 800);
               }}
               style={styles.logoutButton}
             >
