@@ -4,7 +4,8 @@ import { StyleSheet, Text, View } from 'react-native';
 export default function App() {
   return (
     <View style={styles.container}>
-      <Text>Open up App.js to start working on your app!</Text>
+      <Text style={{ fontSize: 20, fontWeight: 'bold', color: '#10b981', marginBottom: 8 }}>🌱 Sprout Mobile App</Text>
+      <Text style={{ fontSize: 14, color: '#4b5563' }}>Hello Sprout Farmer! (Expo SDK 54 Hello World)</Text>
       <StatusBar style="auto" />
     </View>
   );
