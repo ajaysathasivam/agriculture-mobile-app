@@ -14,7 +14,7 @@ import { Formik } from 'formik';
 import * as Yup from 'yup';
 import { Input } from '../components/Input';
 import { Button } from '../components/Button';
-import { Toast } from '../components/Toast';
+import { useStore } from '../store/useStore';
 
 // Registration Validation Schema
 const registerSchema = Yup.object().shape({
@@ -39,16 +39,7 @@ export const Register = ({ onNavigate }) => {
   const [agreeTerms, setAgreeTerms] = useState(true);
   const [isLoading, setIsLoading] = useState(false);
 
-  // Toast
-  const [toastMessage, setToastMessage] = useState('');
-  const [toastType, setToastType] = useState('success');
-  const [isToastOpen, setIsToastOpen] = useState(false);
-
-  const triggerToast = (message, type) => {
-    setToastMessage(message);
-    setToastType(type);
-    setIsToastOpen(true);
-  };
+  const triggerToast = useStore((state) => state.triggerToast);
 
   const handleRegisterSubmit = (values) => {
     // Agree to terms check
@@ -61,6 +52,7 @@ export const Register = ({ onNavigate }) => {
     setTimeout(() => {
       setIsLoading(false);
       triggerToast('Account created successfully!', 'success');
+      triggerToast('Account created successfull1!', 'success');
       
       setTimeout(() => {
         onNavigate('login');
@@ -177,13 +169,6 @@ export const Register = ({ onNavigate }) => {
           )}
         </Formik>
       </KeyboardAvoidingView>
-
-      <Toast
-        isOpen={isToastOpen}
-        message={toastMessage}
-        type={toastType}
-        onClose={() => setIsToastOpen(false)}
-      />
     </SafeAreaView>
   );
 };

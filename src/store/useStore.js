@@ -7,6 +7,17 @@ export const useStore = create((set) => ({
   login: (userData) => set({ user: userData, isAuthenticated: true }),
   logout: () => set({ user: null, isAuthenticated: false }),
 
+  // Global Toast Notifications State
+  toastMessage: '',
+  toastType: 'success',
+  isToastOpen: false,
+  triggerToast: (message, type = 'success') => set({
+    toastMessage: message,
+    toastType: type,
+    isToastOpen: true
+  }),
+  closeToast: () => set({ isToastOpen: false }),
+
   // Lands State
   lands: [
     { id: 'land-1', name: 'North Paddy Plot', area: '1.2 Acres', landType: 'wetland', soilType: 'alluvial', measurementMethod: 'gps' }

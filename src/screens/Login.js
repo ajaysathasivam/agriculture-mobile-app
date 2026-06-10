@@ -14,7 +14,6 @@ import { Formik } from 'formik';
 import * as Yup from 'yup';
 import { Input } from '../components/Input';
 import { Button } from '../components/Button';
-import { Toast } from '../components/Toast';
 import { useStore } from '../store/useStore';
 
 // Login Validation Schema
@@ -33,16 +32,7 @@ export const Login = ({ onNavigate }) => {
   const [rememberMe, setRememberMe] = useState(true);
   const [isLoading, setIsLoading] = useState(false);
 
-  // Toast
-  const [toastMessage, setToastMessage] = useState('');
-  const [toastType, setToastType] = useState('success');
-  const [isToastOpen, setIsToastOpen] = useState(false);
-
-  const triggerToast = (message, type) => {
-    setToastMessage(message);
-    setToastType(type);
-    setIsToastOpen(true);
-  };
+  const triggerToast = useStore((state) => state.triggerToast);
 
   const handleLoginSubmit = (values) => {
     setIsLoading(true);
@@ -159,13 +149,6 @@ export const Login = ({ onNavigate }) => {
           )}
         </Formik>
       </KeyboardAvoidingView>
-
-      <Toast
-        isOpen={isToastOpen}
-        message={toastMessage}
-        type={toastType}
-        onClose={() => setIsToastOpen(false)}
-      />
     </SafeAreaView>
   );
 };

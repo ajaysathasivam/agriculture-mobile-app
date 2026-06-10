@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import { StyleSheet, View, Text, SafeAreaView } from 'react-native';
 import { StatusBar } from 'expo-status-bar';
-import { MaterialIcons } from '@expo/vector-icons';
 import { Login } from './src/screens/Login';
 import { Register } from './src/screens/Register';
 import { Button } from './src/components/Button';
@@ -17,16 +16,12 @@ export default function App() {
   const isAuthenticated = useStore((state) => state.isAuthenticated);
   const logoutAction = useStore((state) => state.logout);
 
-  // Toast notifications state
-  const [toastMessage, setToastMessage] = useState('');
-  const [toastType, setToastType] = useState('success');
-  const [isToastOpen, setIsToastOpen] = useState(false);
-
-  const triggerToast = (message, type) => {
-    setToastMessage(message);
-    setToastType(type);
-    setIsToastOpen(true);
-  };
+  // Global Toast State
+  const isToastOpen = useStore((state) => state.isToastOpen);
+  const toastMessage = useStore((state) => state.toastMessage);
+  const toastType = useStore((state) => state.toastType);
+  const closeToastAction = useStore((state) => state.closeToast);
+  const triggerToastAction = useStore((state) => state.triggerToast);
 
   return (
     <View style={styles.container}>
@@ -60,7 +55,7 @@ export default function App() {
               variant="outline" 
               onPress={() => {
                 logoutAction();
-                triggerToast('Signed out successfully.', 'info');
+                triggerToastAction('Signed out successfully.', 'info');
               }}
               style={styles.logoutButton}
             >
@@ -74,7 +69,7 @@ export default function App() {
         isOpen={isToastOpen}
         message={toastMessage}
         type={toastType}
-        onClose={() => setIsToastOpen(false)}
+        onClose={closeToastAction}
       />
       <StatusBar style="auto" />
     </View>
