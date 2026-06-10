@@ -7,16 +7,17 @@ export const useStore = create((set) => ({
   login: (userData) => set({ user: userData, isAuthenticated: true }),
   logout: () => set({ user: null, isAuthenticated: false }),
 
-  // Global Toast Notifications State
-  toastMessage: '',
-  toastType: 'success',
-  isToastOpen: false,
-  triggerToast: (message, type = 'success') => set({
-    toastMessage: message,
-    toastType: type,
-    isToastOpen: true
-  }),
-  closeToast: () => set({ isToastOpen: false }),
+  // Global Multi-Toast Notifications State (Queue)
+  toasts: [],
+  triggerToast: (message, type = 'success', duration = 3000) => {
+    const id = Math.random().toString(36).substring(2, 9);
+    set((state) => ({ 
+      toasts: [...state.toasts, { id, message, type, duration }] 
+    }));
+  },
+  removeToast: (id) => set((state) => ({ 
+    toasts: state.toasts.filter(t => t.id !== id) 
+  })),
 
   // Lands State
   lands: [

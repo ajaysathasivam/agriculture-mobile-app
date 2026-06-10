@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
+import { TouchableOpacity, Text, StyleSheet } from 'react-native';
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 
 export const Toast = ({ 
@@ -51,33 +51,23 @@ export const Toast = ({
   };
 
   return (
-    <View style={styles.overlay}>
-      <TouchableOpacity 
-        style={[styles.toast, getStyle()]} 
-        onPress={onClose}
-        activeOpacity={0.9}
-      >
-        <MaterialIcons 
-          name={getIconName()} 
-          size={20} 
-          color={getIconColor()} 
-          style={styles.icon}
-        />
-        <Text style={styles.text}>{message}</Text>
-      </TouchableOpacity>
-    </View>
+    <TouchableOpacity 
+      style={[styles.toast, getStyle()]} 
+      onPress={onClose}
+      activeOpacity={0.9}
+    >
+      <MaterialIcons 
+        name={getIconName()} 
+        size={20} 
+        color={getIconColor()} 
+        style={styles.icon}
+      />
+      <Text style={styles.text}>{message}</Text>
+    </TouchableOpacity>
   );
 };
 
 const styles = StyleSheet.create({
-  overlay: {
-    position: 'absolute',
-    top: 50,
-    left: 16,
-    right: 16,
-    zIndex: 9999,
-    alignItems: 'center',
-  },
   toast: {
     width: '100%',
     flexDirection: 'row',
@@ -91,6 +81,7 @@ const styles = StyleSheet.create({
     shadowRadius: 10,
     elevation: 5,
     borderWidth: 1,
+    marginBottom: 8, // margin for vertical stacking space
   },
   success: {
     backgroundColor: '#ecfdf5',

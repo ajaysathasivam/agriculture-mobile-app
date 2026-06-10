@@ -1,12 +1,12 @@
 import React, { useState } from 'react';
 import { StyleSheet, View, Text, SafeAreaView } from 'react-native';
 import { StatusBar } from 'expo-status-bar';
+import { MaterialIcons } from '@expo/vector-icons';
 import { Login } from './src/screens/Login';
 import { Register } from './src/screens/Register';
 import { Button } from './src/components/Button';
 import { Toast } from './src/components/Toast';
 import { useStore } from './src/store/useStore';
-import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 
 export default function App() {
   // Local toggle for navigation between Login and Register when unauthenticated
@@ -17,11 +17,9 @@ export default function App() {
   const isAuthenticated = useStore((state) => state.isAuthenticated);
   const logoutAction = useStore((state) => state.logout);
 
-  // Global Toast State
-  const isToastOpen = useStore((state) => state.isToastOpen);
-  const toastMessage = useStore((state) => state.toastMessage);
-  const toastType = useStore((state) => state.toastType);
-  const closeToastAction = useStore((state) => state.closeToast);
+  // Global Queue Toast State
+  const toasts = useStore((state) => state.toasts);
+  const removeToastAction = useStore((state) => state.removeToast);
   const triggerToastAction = useStore((state) => state.triggerToast);
 
   return (
@@ -66,12 +64,20 @@ export default function App() {
         </SafeAreaView>
       )}
 
-      <Toast
-        isOpen={isToastOpen}
-        message={toastMessage}
-        type={toastType}
-        onClose={closeToastAction}
-      />
+      {/* Global Stacked Toasts Container */}
+      <View style={styles.toastsContainer} pointerEvents="box-none">
+        {toasts.map((toast) => (
+          <Toast
+            key={toast.id}
+            isOpen={true}
+            message={toast.message}
+            type={toast.type}
+            duration={toast.duration}
+            onClose={() => removeToastAction(toast.id)}
+          />
+        ))}
+      </View>
+      
       <StatusBar style="auto" />
     </View>
   );
@@ -135,5 +141,12 @@ const styles = StyleSheet.create({
     width: '100%',
     marginTop: 32,
     borderColor: '#ef4444',
+  },
+  toastsContainer: {
+    position: 'absolute',
+    top: 50,
+    left: 16,
+    right: 16,
+    zIndex: 9999,
   },
 });
