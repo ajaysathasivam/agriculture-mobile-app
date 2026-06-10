@@ -6,6 +6,7 @@ import { Register } from './src/screens/Register';
 import { Button } from './src/components/Button';
 import { Toast } from './src/components/Toast';
 import { useStore } from './src/store/useStore';
+import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 
 export default function App() {
   // Local toggle for navigation between Login and Register when unauthenticated

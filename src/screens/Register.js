@@ -9,7 +9,7 @@ import {
   ScrollView,
   SafeAreaView
 } from 'react-native';
-import { MaterialIcons } from '@expo/vector-icons';
+import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 import { Formik } from 'formik';
 import * as Yup from 'yup';
 import { Input } from '../components/Input';
