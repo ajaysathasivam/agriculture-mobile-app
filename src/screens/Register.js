@@ -7,7 +7,8 @@ import {
   KeyboardAvoidingView, 
   Platform, 
   ScrollView,
-  SafeAreaView
+  SafeAreaView,
+  StatusBar
 } from 'react-native';
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 import { Formik } from 'formik';
@@ -176,6 +177,7 @@ const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
     backgroundColor: '#ffffff',
+    paddingTop: Platform.OS === 'android' ? StatusBar.currentHeight : 0,
   },
   keyboardView: {
     flex: 1,

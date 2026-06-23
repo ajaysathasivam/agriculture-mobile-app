@@ -4,8 +4,36 @@ export const useStore = create((set) => ({
   // Authentication State
   user: null,
   isAuthenticated: false,
+  hasCompletedWizard: false,
+  
+  // Onboarding Wizard Cache States
+  measuredArea: '',
+  measurementMethod: '', // 'map' | 'gps' | ''
+  selectedLandType: '',
+  selectedSoilType: '',
+
   login: (userData) => set({ user: userData, isAuthenticated: true }),
-  logout: () => set({ user: null, isAuthenticated: false }),
+  updateUserProfile: (profile) => set((state) => ({ user: { ...state.user, ...profile } })),
+  logout: () => set({ 
+    user: null, 
+    isAuthenticated: false, 
+    hasCompletedWizard: false,
+    measuredArea: '',
+    measurementMethod: '',
+    selectedLandType: '',
+    selectedSoilType: '',
+    customCrops: [],
+    lands: [] 
+  }),
+  
+  setHasCompletedWizard: (value) => set({ hasCompletedWizard: value }),
+  setOnboardingState: (updates) => set((state) => ({ ...state, ...updates })),
+  resetOnboardingState: () => set({
+    measuredArea: '',
+    measurementMethod: '',
+    selectedLandType: '',
+    selectedSoilType: ''
+  }),
 
   // Global Multi-Toast Notifications State (Queue)
   toasts: [],
@@ -59,8 +87,26 @@ export const useStore = create((set) => ({
   })),
 
   // Sowing Logs / Planted Crops State
-  plantedCrops: [],
+  plantedCrops: [
+    {
+      landId: 'land-1',
+      cropId: 'paddy',
+      elapsedDays: 25,
+      sownDate: new Date(Date.now() - 25 * 24 * 60 * 60 * 1000).toLocaleDateString(),
+      journalLogs: [
+        { day: 1, date: new Date(Date.now() - 25 * 24 * 60 * 60 * 1000).toLocaleDateString(), note: "Prepared nursery beds. Sowed pre-germinated Samba seeds. Soil moisture is optimal." },
+        { day: 10, date: new Date(Date.now() - 15 * 24 * 60 * 60 * 1000).toLocaleDateString(), note: "Sprouts have emerged. Checked nitrogen levels and cleared light weeds." },
+        { day: 25, date: new Date().toLocaleDateString(), note: "Uprooting saplings from nursery bed and completed main field transplantation." }
+      ]
+    }
+  ],
   addPlantedCrop: (planted) => set((state) => ({ plantedCrops: [...state.plantedCrops, planted] })),
+  updatePlantedCropDays: (index, days) => set((state) => ({
+    plantedCrops: state.plantedCrops.map((c, idx) => idx === index ? { ...c, elapsedDays: days } : c)
+  })),
+  addJournalLog: (index, log) => set((state) => ({
+    plantedCrops: state.plantedCrops.map((c, idx) => idx === index ? { ...c, journalLogs: [...(c.journalLogs || []), log] } : c)
+  })),
   removePlantedCrop: (index) => set((state) => ({
     plantedCrops: state.plantedCrops.filter((_, idx) => idx !== index)
   })),
@@ -86,5 +132,26 @@ export const useStore = create((set) => ({
   addHarvestRecord: (record) => set((state) => ({ harvestHistory: [record, ...state.harvestHistory] })),
   removeHarvestRecord: (recordId) => set((state) => ({
     harvestHistory: state.harvestHistory.filter((r) => r.id !== recordId)
-  }))
+  })),
+
+  // Custom Crops Recipes State
+  customCrops: [],
+  addCustomCrop: (crop) => set((state) => ({ customCrops: [...state.customCrops, crop] })),
+  removeCustomCrop: (cropId) => set((state) => ({ customCrops: state.customCrops.filter((c) => c.id !== cropId) })),
+
+  // Reset all application data
+  resetAppData: () => set({
+    measuredArea: '',
+    measurementMethod: '',
+    selectedLandType: '',
+    selectedSoilType: '',
+    customCrops: [],
+    lands: [],
+    plantedCrops: [],
+    inventory: [
+      { id: 'inv-1', name: 'Groundnut Kernels', type: 'seed', quantity: 20, unit: 'kg', lastUpdated: '06/08/2026' },
+      { id: 'inv-2', name: 'Paddy Seeds (CO-51)', type: 'seed', quantity: 40, unit: 'kg', lastUpdated: '06/09/2026' },
+      { id: 'inv-3', name: 'Gypsum Fertilizer', type: 'fertilizer', quantity: 120, unit: 'kg', lastUpdated: '06/10/2026' }
+    ]
+  })
 }));

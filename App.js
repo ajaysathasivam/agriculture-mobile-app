@@ -8,6 +8,11 @@ import { Button } from './src/components/Button';
 import { Toast } from './src/components/Toast';
 import { useStore } from './src/store/useStore';
 
+import { LandWizard } from './src/screens/LandWizard';
+import { MapMeasurement } from './src/screens/MapMeasurement';
+import { GpsMeasurement } from './src/screens/GpsMeasurement';
+import { Dashboard } from './src/screens/Dashboard';
+
 export default function App() {
   // Local toggle for navigation between Login and Register when unauthenticated
   const [currentScreen, setCurrentScreen] = useState('login');
@@ -15,6 +20,7 @@ export default function App() {
   // Zustand Store Hooks
   const user = useStore((state) => state.user);
   const isAuthenticated = useStore((state) => state.isAuthenticated);
+  const hasCompletedWizard = useStore((state) => state.hasCompletedWizard);
   const logoutAction = useStore((state) => state.logout);
 
   // Global Queue Toast State
@@ -38,30 +44,19 @@ export default function App() {
             />
           )}
         </>
+      ) : !hasCompletedWizard ? (
+        <>
+          {(currentScreen === 'login' || currentScreen === 'register' || currentScreen === 'land-wizard' || currentScreen === 'dashboard') && (
+            <LandWizard step={1} onNavigate={setCurrentScreen} />
+          )}
+          {currentScreen === 'map-measure' && <MapMeasurement onNavigate={setCurrentScreen} />}
+          {currentScreen === 'gps-measure' && <GpsMeasurement onNavigate={setCurrentScreen} />}
+          {currentScreen === 'land-wizard-step2' && <LandWizard step={2} onNavigate={setCurrentScreen} />}
+          {currentScreen === 'land-wizard-step3' && <LandWizard step={3} onNavigate={setCurrentScreen} />}
+          {currentScreen === 'land-wizard-finalize' && <LandWizard step={4} onNavigate={setCurrentScreen} />}
+        </>
       ) : (
-        <SafeAreaView style={styles.homeContainer}>
-          <View style={styles.homeContent}>
-            <View style={styles.homeIconContainer}>
-              <MaterialIcons name="agriculture" size={48} color="#059669" />
-            </View>
-            <Text style={styles.homeWelcome}>Welcome to Sprout!</Text>
-            <Text style={styles.homeFarmerName}>{user?.name || 'Farmer'}</Text>
-            <Text style={styles.homeSubtitle}>
-              Your mobile farm assistant is ready. We will start migrating the fields and sowing logs next.
-            </Text>
-            
-            <Button 
-              variant="outline" 
-              onPress={() => {
-                logoutAction();
-                triggerToastAction('Signed out successfully.', 'info');
-              }}
-              style={styles.logoutButton}
-            >
-              Sign Out
-            </Button>
-          </View>
-        </SafeAreaView>
+        <Dashboard onNavigate={setCurrentScreen} />
       )}
 
       {/* Global Stacked Toasts Container */}
