@@ -1,5 +1,6 @@
 import React from 'react';
 import { TouchableOpacity, Text, ActivityIndicator, StyleSheet } from 'react-native';
+import { useTheme } from '../store/useThemeStore';
 
 export const Button = ({ 
   children, 
@@ -11,6 +12,7 @@ export const Button = ({
   style, 
   textStyle 
 }) => {
+  const { colors, fontScale } = useTheme();
   const isPrimary = variant === 'primary';
   const isOutline = variant === 'outline';
   const isGhost = variant === 'ghost';
@@ -22,8 +24,8 @@ export const Button = ({
       activeOpacity={0.8}
       style={[
         styles.button,
-        isPrimary && styles.primary,
-        isOutline && styles.outline,
+        isPrimary && { backgroundColor: colors.primary },
+        isOutline && { borderColor: colors.primary, borderWidth: 1.5 },
         isGhost && styles.ghost,
         disabled && styles.disabled,
         size === 'sm' && styles.sm,
@@ -32,17 +34,18 @@ export const Button = ({
     >
       {isLoading ? (
         <ActivityIndicator 
-          color={isPrimary ? '#ffffff' : '#059669'} 
+          color={isPrimary ? colors.primaryText : colors.primary} 
           size="small" 
         />
       ) : (
         <Text style={[
           styles.text,
-          isPrimary && styles.textPrimary,
-          isOutline && styles.textOutline,
-          isGhost && styles.textGhost,
+          isPrimary && { color: colors.primaryText },
+          isOutline && { color: colors.primary },
+          isGhost && { color: colors.primary },
           disabled && styles.textDisabled,
           size === 'sm' && styles.textSm,
+          { fontSize: fontScale(size === 'sm' ? 12 : 14) },
           textStyle
         ]}>
           {children}
@@ -60,20 +63,11 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     flexDirection: 'row',
     paddingHorizontal: 16,
-    transition: 'all 0.2s',
   },
   sm: {
     height: 36,
     borderRadius: 8,
     paddingHorizontal: 12,
-  },
-  primary: {
-    backgroundColor: '#059669', // Primary Green
-  },
-  outline: {
-    backgroundColor: 'transparent',
-    borderWidth: 1.5,
-    borderColor: '#059669',
   },
   ghost: {
     backgroundColor: 'transparent',
@@ -83,24 +77,14 @@ const styles = StyleSheet.create({
     borderColor: '#e5e7eb',
   },
   text: {
-    fontSize: 14,
     fontWeight: '700',
     textAlign: 'center',
   },
   textSm: {
-    fontSize: 12,
     fontWeight: '600',
-  },
-  textPrimary: {
-    color: '#ffffff',
-  },
-  textOutline: {
-    color: '#059669',
-  },
-  textGhost: {
-    color: '#059669',
   },
   textDisabled: {
     color: '#9ca3af',
   },
 });
+

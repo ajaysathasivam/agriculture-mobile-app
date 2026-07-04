@@ -5,10 +5,10 @@ import {
   StyleSheet, 
   TouchableOpacity, 
   ScrollView,
-  SafeAreaView,
   Platform,
   StatusBar
 } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 import { Button } from '../components/Button';
 import { Input } from '../components/Input';
@@ -358,7 +358,6 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#ffffff',
-    paddingTop: Platform.OS === 'android' ? StatusBar.currentHeight : 0,
   },
   header: {
     flexDirection: 'row',

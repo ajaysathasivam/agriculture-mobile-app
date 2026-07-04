@@ -9,11 +9,14 @@ import {
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 import { Button } from '../components/Button';
 import { useStore } from '../store/useStore';
+import { useTheme } from '../store/useThemeStore';
 
 export const LandsTab = ({ onNavigate }) => {
   const lands = useStore(state => state.lands);
   const removeLand = useStore(state => state.removeLand);
   const triggerToast = useStore(state => state.triggerToast);
+  const { colors, fontScale } = useTheme();
+  const styles = getStyles(colors, fontScale);
 
   const getLandTypeLabel = (type) => {
     if (type === 'wetland') return 'நஞ்சை நிலம் (Wetland)';
@@ -95,10 +98,10 @@ export const LandsTab = ({ onNavigate }) => {
   );
 };
 
-const styles = StyleSheet.create({
+const getStyles = (colors, fontScale) => StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#f9fafb',
+    backgroundColor: colors.background,
   },
   scrollContent: {
     padding: 16,
@@ -112,21 +115,21 @@ const styles = StyleSheet.create({
     marginBottom: 4,
   },
   sectionTitle: {
-    fontSize: 10,
+    fontSize: fontScale(10),
     fontWeight: '900',
-    color: '#9ca3af',
+    color: colors.subtext,
     textTransform: 'uppercase',
     letterSpacing: 0.5,
   },
   fieldCountText: {
-    fontSize: 9,
-    color: '#059669',
+    fontSize: fontScale(9),
+    color: colors.primary,
     fontWeight: '700',
   },
   landCard: {
-    backgroundColor: '#ffffff',
+    backgroundColor: colors.card,
     borderWidth: 1,
-    borderColor: '#f3f4f6',
+    borderColor: colors.border,
     borderRadius: 24,
     padding: 16,
     gap: 12,
@@ -145,14 +148,14 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   landName: {
-    fontSize: 13,
+    fontSize: fontScale(13),
     fontWeight: '800',
-    color: '#1f2937',
+    color: colors.text,
   },
   landAreaText: {
-    fontSize: 14,
+    fontSize: fontScale(14),
     fontWeight: '900',
-    color: '#059669',
+    color: colors.primary,
     marginTop: 2,
   },
   deleteBtn: {
@@ -160,7 +163,7 @@ const styles = StyleSheet.create({
   },
   divider: {
     height: 1,
-    backgroundColor: '#f3f4f6',
+    backgroundColor: colors.border,
   },
   detailsGrid: {
     gap: 8,
@@ -171,36 +174,36 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   detailLabel: {
-    fontSize: 7.5,
+    fontSize: fontScale(7.5),
     fontWeight: '850',
-    color: '#9ca3af',
+    color: colors.subtext,
     textTransform: 'uppercase',
   },
   detailValue: {
-    fontSize: 10,
+    fontSize: fontScale(10),
     fontWeight: '700',
-    color: '#4b5563',
+    color: colors.text,
   },
   emptyCard: {
-    backgroundColor: '#ffffff',
+    backgroundColor: colors.card,
     borderWidth: 1,
-    borderColor: '#f3f4f6',
+    borderColor: colors.border,
     borderRadius: 24,
     padding: 24,
     alignItems: 'center',
   },
   emptyEmoji: {
-    fontSize: 32,
+    fontSize: fontScale(32),
   },
   emptyTitle: {
-    fontSize: 12.5,
+    fontSize: fontScale(12.5),
     fontWeight: '800',
-    color: '#374151',
+    color: colors.text,
     marginTop: 8,
   },
   emptyDesc: {
-    fontSize: 10.5,
-    color: '#6b7280',
+    fontSize: fontScale(10.5),
+    color: colors.subtext,
     textAlign: 'center',
     lineHeight: 15,
     marginTop: 4,
@@ -210,3 +213,4 @@ const styles = StyleSheet.create({
     marginTop: 8,
   }
 });
+

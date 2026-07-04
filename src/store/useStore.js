@@ -23,7 +23,8 @@ export const useStore = create((set) => ({
     selectedLandType: '',
     selectedSoilType: '',
     customCrops: [],
-    lands: [] 
+    lands: [],
+    todos: []
   }),
   
   setHasCompletedWizard: (value) => set({ hasCompletedWizard: value }),
@@ -52,7 +53,30 @@ export const useStore = create((set) => ({
     { id: 'land-1', name: 'North Paddy Plot', area: '1.2 Acres', landType: 'wetland', soilType: 'alluvial', measurementMethod: 'gps' }
   ],
   addLand: (land) => set((state) => ({ lands: [...state.lands, land] })),
-  removeLand: (landId) => set((state) => ({ lands: state.lands.filter((l) => l.id !== landId) })),
+  removeLand: (landId) => set((state) => {
+    const land = state.lands.find(l => l.id === landId);
+    const landName = land ? land.name : '';
+    return {
+      lands: state.lands.filter((l) => l.id !== landId),
+      todos: state.todos.filter((todo) => !todo.task.includes(`[${landName}]`))
+    };
+  }),
+
+  // Todos State
+  todos: [
+    { id: '1', task: 'Check nitrogen level in Paddy Field', priority: 'high', completed: false, scheduledDayIndex: new Date().getDay() },
+    { id: '2', task: 'Clear weeds along borders of Garden Land', priority: 'medium', completed: false, scheduledDayIndex: (new Date().getDay() + 1) % 7 },
+    { id: '3', task: 'Adjust irrigation timer for Dryland Zone', priority: 'low', completed: true, scheduledDayIndex: (new Date().getDay() + 2) % 7 },
+    { id: '4', task: 'Apply organic vermicompost to red soil area', priority: 'high', completed: false, scheduledDayIndex: new Date().getDay() }
+  ],
+  addTodo: (todo) => set((state) => ({ todos: [todo, ...state.todos] })),
+  addTodos: (newTodos) => set((state) => ({ todos: [...newTodos, ...state.todos] })),
+  toggleTodo: (todoId) => set((state) => ({
+    todos: state.todos.map((t) => t.id === todoId ? { ...t, completed: !t.completed } : t)
+  })),
+  removeTodo: (todoId) => set((state) => ({
+    todos: state.todos.filter((t) => t.id !== todoId)
+  })),
 
   // Inventory State
   inventory: [
@@ -148,6 +172,12 @@ export const useStore = create((set) => ({
     customCrops: [],
     lands: [],
     plantedCrops: [],
+    todos: [
+      { id: '1', task: 'Check nitrogen level in Paddy Field', priority: 'high', completed: false, scheduledDayIndex: new Date().getDay() },
+      { id: '2', task: 'Clear weeds along borders of Garden Land', priority: 'medium', completed: false, scheduledDayIndex: (new Date().getDay() + 1) % 7 },
+      { id: '3', task: 'Adjust irrigation timer for Dryland Zone', priority: 'low', completed: true, scheduledDayIndex: (new Date().getDay() + 2) % 7 },
+      { id: '4', task: 'Apply organic vermicompost to red soil area', priority: 'high', completed: false, scheduledDayIndex: new Date().getDay() }
+    ],
     inventory: [
       { id: 'inv-1', name: 'Groundnut Kernels', type: 'seed', quantity: 20, unit: 'kg', lastUpdated: '06/08/2026' },
       { id: 'inv-2', name: 'Paddy Seeds (CO-51)', type: 'seed', quantity: 40, unit: 'kg', lastUpdated: '06/09/2026' },

@@ -13,6 +13,7 @@ import {
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 import { Button } from '../components/Button';
 import { useStore } from '../store/useStore';
+import { useTheme } from '../store/useThemeStore';
 import { cropsDatabase, getDurationInDays, getActiveMilestone } from '../data/crops';
 
 // Enable LayoutAnimation for Android
@@ -26,6 +27,8 @@ export const HomeTab = ({ onNavigate }) => {
   const updatePlantedCropDays = useStore(state => state.updatePlantedCropDays);
   const addJournalLog = useStore(state => state.addJournalLog);
   const triggerToast = useStore(state => state.triggerToast);
+  const { colors, fontScale } = useTheme();
+  const styles = getStyles(colors, fontScale);
 
   const [expandedIndex, setExpandedIndex] = useState(0);
   const [journalNote, setJournalNote] = useState('');
@@ -116,7 +119,7 @@ export const HomeTab = ({ onNavigate }) => {
         </View>
         <View style={styles.statCard}>
           <Text style={styles.statLabel}>Moisture Status</Text>
-          <Text style={[styles.statValue, { color: '#059669' }]}>Optimal</Text>
+          <Text style={[styles.statValue, { color: colors.primary }]}>Optimal</Text>
           <Text style={styles.statSub}>Zone alerts cleared</Text>
         </View>
       </View>
@@ -139,7 +142,7 @@ export const HomeTab = ({ onNavigate }) => {
                 <Text style={styles.npkPercent}>65%</Text>
               </View>
               <View style={styles.npkBarContainer}>
-                <View style={[styles.npkBar, { width: '65%', backgroundColor: '#10b981' }]} />
+                <View style={[styles.npkBar, { width: '65%', backgroundColor: colors.primary }]} />
               </View>
             </View>
 
@@ -164,25 +167,24 @@ export const HomeTab = ({ onNavigate }) => {
             </View>
           </View>
 
-          {/* Moisture Trend Bars Chart */}
+          {/* Dynamic Moisture Charts */}
           <View style={styles.moistureChartContainer}>
-            <Text style={styles.chartTitle}>Soil Moisture Trend (7 Days)</Text>
+            <Text style={styles.chartTitle}>Recent Soil Moisture Levels (%)</Text>
             <View style={styles.chartBarsRow}>
               {[
-                { day: 'M', val: 38, h: 42 },
-                { day: 'T', val: 35, h: 38 },
-                { day: 'W', val: 40, h: 44 },
-                { day: 'T', val: 42, h: 48 },
-                { day: 'F', val: 39, h: 43 },
-                { day: 'S', val: 41, h: 46 },
-                { day: 'S', val: 38, h: 42 },
-              ].map((item, idx) => (
-                <View key={idx} style={styles.chartBarCol}>
-                  <Text style={styles.barValText}>{item.val}%</Text>
+                { day: 'Mon', val: 45 },
+                { day: 'Tue', val: 40 },
+                { day: 'Wed', val: 38 },
+                { day: 'Thu', val: 42 },
+                { day: 'Fri', val: 45 },
+                { day: 'Sat', val: 42 }
+              ].map((mVal, mIdx) => (
+                <View key={mIdx} style={styles.chartBarCol}>
+                  <Text style={styles.barValText}>{mVal.val}%</Text>
                   <View style={styles.chartBarTrack}>
-                    <View style={[styles.chartBarFill, { height: item.h }]} />
+                    <View style={[styles.chartBarFill, { height: `${mVal.val}%` }]} />
                   </View>
-                  <Text style={styles.barDayText}>{item.day}</Text>
+                  <Text style={styles.barDayText}>{mVal.day}</Text>
                 </View>
               ))}
             </View>
@@ -235,8 +237,8 @@ export const HomeTab = ({ onNavigate }) => {
                   <Text style={styles.mandiUnit}>/{item.unit}</Text>
                 </View>
               </View>
-              <View style={[styles.changeBadge, { backgroundColor: item.up ? '#ecfdf5' : '#fef2f2', borderColor: item.up ? '#d1fae5' : '#fee2e2' }]}>
-                <Text style={[styles.changeText, { color: item.up ? '#059669' : '#ef4444' }]}>{item.change}</Text>
+              <View style={[styles.changeBadge, { backgroundColor: item.up ? colors.toastSuccessBg : colors.toastErrorBg, borderColor: colors.border }]}>
+                <Text style={[styles.changeText, { color: item.up ? colors.toastSuccessText : colors.toastErrorText }]}>{item.change}</Text>
               </View>
             </View>
           ))}
@@ -387,15 +389,16 @@ export const HomeTab = ({ onNavigate }) => {
                                   isActive && styles.stepDotActive
                                 ]}>
                                   {isCompleted ? (
-                                    <MaterialIcons name="check" size={10} color="#ffffff" />
+                                    <MaterialIcons name="check" size={10} color={colors.primaryText} />
                                   ) : (
-                                    <Text style={[styles.stepDotText, isActive && { color: '#059669' }]}>{m.day}</Text>
+                                    <Text style={[styles.stepDotText, isActive && { color: colors.primary }]}>{m.day}</Text>
                                   )}
                                 </View>
                                 {mIdx < cropInfo.milestones.length - 1 && (
                                   <View style={[styles.stepLine, isCompleted && styles.stepLineCompleted]} />
                                 )}
                               </View>
+
 
                               {/* Step text content */}
                               <View style={styles.stepContentTextCol}>
@@ -472,10 +475,10 @@ export const HomeTab = ({ onNavigate }) => {
   );
 };
 
-const styles = StyleSheet.create({
+const getStyles = (colors, fontScale) => StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#f9fafb',
+    backgroundColor: colors.background,
   },
   scrollContent: {
     padding: 16,
@@ -483,10 +486,10 @@ const styles = StyleSheet.create({
     gap: 20,
   },
   weatherCard: {
-    backgroundColor: '#059669',
+    backgroundColor: colors.primary,
     borderRadius: 24,
     padding: 20,
-    shadowColor: '#059669',
+    shadowColor: colors.primary,
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.1,
     shadowRadius: 10,
@@ -498,28 +501,28 @@ const styles = StyleSheet.create({
     alignItems: 'flex-start',
   },
   weatherLabel: {
-    fontSize: 9,
+    fontSize: fontScale(9),
     fontWeight: '900',
-    color: '#a7f3d0',
+    color: colors.primaryLight,
     letterSpacing: 1.5,
   },
   weatherLocation: {
-    fontSize: 18,
+    fontSize: fontScale(18),
     fontWeight: '800',
     color: '#ffffff',
     marginTop: 2,
   },
   weatherSub: {
-    fontSize: 11,
-    color: '#d1fae5',
+    fontSize: fontScale(11),
+    color: colors.primaryLight,
     marginTop: 4,
-    fontWeight: '500',
+    fontWeight: '550',
   },
   weatherRight: {
     alignItems: 'flex-end',
   },
   weatherTemp: {
-    fontSize: 28,
+    fontSize: fontScale(28),
     fontWeight: '900',
     color: '#ffffff',
   },
@@ -531,7 +534,7 @@ const styles = StyleSheet.create({
     marginTop: 6,
   },
   weatherBadgeText: {
-    fontSize: 9,
+    fontSize: fontScale(9),
     fontWeight: '700',
     color: '#ffffff',
   },
@@ -546,9 +549,9 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   weatherFooterItem: {
-    fontSize: 9,
+    fontSize: fontScale(9),
     fontWeight: '700',
-    color: '#d1fae5',
+    color: colors.primaryLight,
   },
   statsRow: {
     flexDirection: 'row',
@@ -556,9 +559,9 @@ const styles = StyleSheet.create({
   },
   statCard: {
     flex: 1,
-    backgroundColor: '#ffffff',
+    backgroundColor: colors.card,
     borderWidth: 1,
-    borderColor: '#f3f4f6',
+    borderColor: colors.border,
     borderRadius: 20,
     padding: 16,
     shadowColor: '#000',
@@ -568,30 +571,30 @@ const styles = StyleSheet.create({
     elevation: 1,
   },
   statLabel: {
-    fontSize: 9,
+    fontSize: fontScale(9),
     fontWeight: '850',
-    color: '#9ca3af',
+    color: colors.subtext,
     textTransform: 'uppercase',
     letterSpacing: 0.5,
   },
   statValue: {
-    fontSize: 16,
+    fontSize: fontScale(16),
     fontWeight: '900',
-    color: '#1f2937',
+    color: colors.text,
     marginTop: 4,
   },
   statSub: {
-    fontSize: 9,
+    fontSize: fontScale(9),
     fontWeight: '600',
-    color: '#6b7280',
+    color: colors.subtext,
     marginTop: 2,
   },
   analyticsCard: {
-    backgroundColor: '#ffffff',
+    backgroundColor: colors.card,
     borderRadius: 24,
     padding: 20,
     borderWidth: 1,
-    borderColor: '#f3f4f6',
+    borderColor: colors.border,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 3 },
     shadowOpacity: 0.03,
@@ -605,31 +608,31 @@ const styles = StyleSheet.create({
     marginBottom: 16,
   },
   cardTitle: {
-    fontSize: 12,
+    fontSize: fontScale(12),
     fontWeight: '900',
-    color: '#1f2937',
+    color: colors.text,
     textTransform: 'uppercase',
     letterSpacing: 0.5,
   },
   cardBadge: {
-    backgroundColor: '#f3f4f6',
+    backgroundColor: colors.background,
     paddingHorizontal: 8,
     paddingVertical: 4,
     borderRadius: 6,
   },
   cardBadgeText: {
-    fontSize: 9,
+    fontSize: fontScale(9),
     fontWeight: '700',
-    color: '#4b5563',
+    color: colors.text,
   },
   npkContainer: {
     gap: 12,
     paddingVertical: 12,
     paddingHorizontal: 8,
-    backgroundColor: '#f9fafb',
+    backgroundColor: colors.background,
     borderRadius: 16,
     borderWidth: 1,
-    borderColor: '#f3f4f6',
+    borderColor: colors.border,
   },
   npkRow: {
     flexDirection: 'row',
@@ -643,19 +646,19 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   npkName: {
-    fontSize: 10,
+    fontSize: fontScale(10),
     fontWeight: '800',
-    color: '#4b5563',
+    color: colors.text,
   },
   npkPercent: {
-    fontSize: 10,
+    fontSize: fontScale(10),
     fontWeight: '900',
-    color: '#111827',
+    color: colors.text,
   },
   npkBarContainer: {
     flex: 1,
     height: 6,
-    backgroundColor: '#e5e7eb',
+    backgroundColor: colors.border,
     borderRadius: 3,
     marginLeft: 12,
     overflow: 'hidden',
@@ -668,9 +671,9 @@ const styles = StyleSheet.create({
     marginTop: 20,
   },
   chartTitle: {
-    fontSize: 10,
+    fontSize: fontScale(10),
     fontWeight: '850',
-    color: '#9ca3af',
+    color: colors.subtext,
     textTransform: 'uppercase',
     marginBottom: 10,
   },
@@ -678,10 +681,10 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'flex-end',
-    backgroundColor: '#f9fafb',
+    backgroundColor: colors.background,
     borderRadius: 16,
     borderWidth: 1,
-    borderColor: '#f3f4f6',
+    borderColor: colors.border,
     paddingTop: 16,
     paddingHorizontal: 10,
     paddingBottom: 8,
@@ -692,53 +695,53 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   barValText: {
-    fontSize: 8,
+    fontSize: fontScale(8),
     fontWeight: '800',
-    color: '#059669',
+    color: colors.primary,
     marginBottom: 4,
   },
   chartBarTrack: {
     width: 8,
     height: 48,
-    backgroundColor: '#e5e7eb',
+    backgroundColor: colors.border,
     borderRadius: 4,
     justifyContent: 'flex-end',
     overflow: 'hidden',
   },
   chartBarFill: {
     width: '105%',
-    backgroundColor: '#10b981',
+    backgroundColor: colors.primary,
     borderRadius: 4,
   },
   barDayText: {
-    fontSize: 8,
+    fontSize: fontScale(8),
     fontWeight: '700',
-    color: '#6b7280',
+    color: colors.subtext,
     marginTop: 4,
   },
   insightCard: {
-    backgroundColor: '#fffbeb',
+    backgroundColor: colors.toastWarningBg,
     borderWidth: 1,
-    borderColor: '#fef3c7',
+    borderColor: colors.border,
     borderRadius: 20,
     padding: 16,
     flexDirection: 'row',
     gap: 12,
   },
   insightEmoji: {
-    fontSize: 20,
+    fontSize: fontScale(20),
   },
   insightContent: {
     flex: 1,
   },
   insightTitle: {
-    fontSize: 12,
+    fontSize: fontScale(12),
     fontWeight: '800',
-    color: '#92400e',
+    color: colors.toastWarningText,
   },
   insightDesc: {
-    fontSize: 10.5,
-    color: '#b45309',
+    fontSize: fontScale(10.5),
+    color: colors.text,
     lineHeight: 16,
     marginTop: 2,
     fontWeight: '550',
@@ -747,11 +750,11 @@ const styles = StyleSheet.create({
     fontWeight: '900',
   },
   noFieldCard: {
-    backgroundColor: '#ffffff',
+    backgroundColor: colors.card,
     borderRadius: 24,
     padding: 24,
     borderWidth: 1,
-    borderColor: '#f3f4f6',
+    borderColor: colors.border,
     alignItems: 'center',
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 3 },
@@ -760,17 +763,17 @@ const styles = StyleSheet.create({
     elevation: 2,
   },
   noFieldEmoji: {
-    fontSize: 32,
+    fontSize: fontScale(32),
   },
   noFieldTitle: {
-    fontSize: 13,
+    fontSize: fontScale(13),
     fontWeight: '800',
-    color: '#1f2937',
+    color: colors.text,
     marginTop: 8,
   },
   noFieldDesc: {
-    fontSize: 11,
-    color: '#6b7280',
+    fontSize: fontScale(11),
+    color: colors.subtext,
     textAlign: 'center',
     lineHeight: 16,
     marginTop: 6,
@@ -789,15 +792,15 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   sectionTitle: {
-    fontSize: 10,
+    fontSize: fontScale(10),
     fontWeight: '850',
-    color: '#9ca3af',
+    color: colors.subtext,
     textTransform: 'uppercase',
     letterSpacing: 0.5,
   },
   updateTime: {
-    fontSize: 8.5,
-    color: '#9ca3af',
+    fontSize: fontScale(8.5),
+    color: colors.subtext,
     fontWeight: '600',
   },
   mandiGrid: {
@@ -807,10 +810,10 @@ const styles = StyleSheet.create({
   },
   mandiCard: {
     width: '48.5%',
-    backgroundColor: '#ffffff',
+    backgroundColor: colors.card,
     borderRadius: 18,
     borderWidth: 1,
-    borderColor: '#f3f4f6',
+    borderColor: colors.border,
     padding: 12,
     flexDirection: 'row',
     justifyContent: 'space-between',
@@ -821,9 +824,9 @@ const styles = StyleSheet.create({
     marginRight: 4,
   },
   mandiName: {
-    fontSize: 10,
+    fontSize: fontScale(10),
     fontWeight: '800',
-    color: '#374151',
+    color: colors.text,
   },
   mandiPriceRow: {
     flexDirection: 'row',
@@ -831,13 +834,13 @@ const styles = StyleSheet.create({
     marginTop: 3,
   },
   mandiRate: {
-    fontSize: 12,
+    fontSize: fontScale(12),
     fontWeight: '900',
-    color: '#111827',
+    color: colors.text,
   },
   mandiUnit: {
-    fontSize: 8,
-    color: '#6b7280',
+    fontSize: fontScale(8),
+    color: colors.subtext,
     fontWeight: '600',
   },
   changeBadge: {
@@ -847,17 +850,17 @@ const styles = StyleSheet.create({
     borderWidth: 0.5,
   },
   changeText: {
-    fontSize: 8,
+    fontSize: fontScale(8),
     fontWeight: '900',
   },
   trackerSection: {
     gap: 12,
   },
   cropItemCard: {
-    backgroundColor: '#ffffff',
+    backgroundColor: colors.card,
     borderRadius: 24,
     borderWidth: 1,
-    borderColor: '#f3f4f6',
+    borderColor: colors.border,
     overflow: 'hidden',
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
@@ -866,7 +869,7 @@ const styles = StyleSheet.create({
     elevation: 1,
   },
   cropItemCardExpanded: {
-    borderColor: '#059669',
+    borderColor: colors.primary,
     shadowOpacity: 0.05,
     shadowRadius: 10,
   },
@@ -886,21 +889,21 @@ const styles = StyleSheet.create({
     width: 44,
     height: 44,
     borderRadius: 12,
-    backgroundColor: '#ecfdf5',
+    backgroundColor: colors.primaryLight,
     alignItems: 'center',
     justifyContent: 'center',
   },
   cropEmojiIcon: {
-    fontSize: 20,
+    fontSize: fontScale(20),
   },
   cropNameTitle: {
-    fontSize: 12,
+    fontSize: fontScale(12),
     fontWeight: '800',
-    color: '#1f2937',
+    color: colors.text,
   },
   cropDaysSub: {
-    fontSize: 10,
-    color: '#6b7280',
+    fontSize: fontScale(10),
+    color: colors.subtext,
     marginTop: 2,
     fontWeight: '550',
   },
@@ -910,51 +913,51 @@ const styles = StyleSheet.create({
     gap: 8,
   },
   harvestReadyBadge: {
-    backgroundColor: '#fef3c7',
+    backgroundColor: colors.toastWarningBg,
     borderWidth: 0.5,
-    borderColor: '#fcd34d',
+    borderColor: colors.border,
     paddingHorizontal: 6,
     paddingVertical: 2.5,
     borderRadius: 8,
   },
   harvestReadyText: {
-    fontSize: 8,
+    fontSize: fontScale(8),
     fontWeight: '900',
-    color: '#b45309',
+    color: colors.toastWarningText,
   },
   sownBadge: {
-    backgroundColor: '#ecfdf5',
+    backgroundColor: colors.primaryLight,
     borderWidth: 0.5,
-    borderColor: '#a7f3d0',
+    borderColor: colors.primary,
     paddingHorizontal: 6,
     paddingVertical: 2.5,
     borderRadius: 8,
   },
   sownText: {
-    fontSize: 8,
+    fontSize: fontScale(8),
     fontWeight: '900',
-    color: '#047857',
+    color: colors.primaryText === '#ffffff' ? colors.primary : colors.primaryText,
   },
   progressBarMinTrack: {
     height: 3,
-    backgroundColor: '#f3f4f6',
+    backgroundColor: colors.border,
     width: '100%',
   },
   progressBarMinFill: {
     height: '105%',
-    backgroundColor: '#10b981',
+    backgroundColor: colors.primary,
   },
   expandedContent: {
     borderTopWidth: 1,
-    borderTopColor: '#f9fafb',
-    backgroundColor: '#fafafa',
+    borderTopColor: colors.border,
+    backgroundColor: colors.cardElevated,
     padding: 16,
     gap: 16,
   },
   simulatorPanel: {
-    backgroundColor: '#ffffff',
+    backgroundColor: colors.card,
     borderWidth: 1,
-    borderColor: '#f3f4f6',
+    borderColor: colors.border,
     borderRadius: 16,
     padding: 12,
     gap: 10,
@@ -965,24 +968,24 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   sownDateText: {
-    fontSize: 9,
-    color: '#6b7280',
+    fontSize: fontScale(9),
+    color: colors.subtext,
     fontWeight: '600',
   },
   simulatorDayIndicator: {
-    fontSize: 10,
+    fontSize: fontScale(10),
     fontWeight: '800',
-    color: '#059669',
+    color: colors.primary,
   },
   progressBarMaxTrack: {
     height: 6,
-    backgroundColor: '#e5e7eb',
+    backgroundColor: colors.border,
     borderRadius: 3,
     overflow: 'hidden',
   },
   progressBarMaxFill: {
     height: '105%',
-    backgroundColor: '#10b981',
+    backgroundColor: colors.primary,
     borderRadius: 3,
   },
   adjustRow: {
@@ -991,65 +994,65 @@ const styles = StyleSheet.create({
   },
   adjustBtn: {
     flex: 1,
-    backgroundColor: '#f3f4f6',
+    backgroundColor: colors.background,
     borderRadius: 8,
     paddingVertical: 6,
     alignItems: 'center',
     borderWidth: 0.5,
-    borderColor: '#e5e7eb',
+    borderColor: colors.border,
   },
   adjustBtnText: {
-    fontSize: 8.5,
+    fontSize: fontScale(8.5),
     fontWeight: '800',
-    color: '#4b5563',
+    color: colors.text,
   },
   simTipText: {
-    fontSize: 7.5,
-    color: '#9ca3af',
+    fontSize: fontScale(7.5),
+    color: colors.subtext,
     textAlign: 'center',
     fontStyle: 'italic',
     fontWeight: '600',
   },
   activeMilestoneCard: {
-    backgroundColor: '#ffffff',
+    backgroundColor: colors.card,
     borderWidth: 1,
-    borderColor: '#f3f4f6',
+    borderColor: colors.border,
     borderRadius: 16,
     padding: 12,
     gap: 4,
   },
   activeMilestoneBadge: {
-    backgroundColor: '#ecfdf5',
+    backgroundColor: colors.primaryLight,
     borderWidth: 0.5,
-    borderColor: '#a7f3d0',
+    borderColor: colors.primary,
     paddingHorizontal: 6,
     paddingVertical: 2,
     borderRadius: 6,
     alignSelf: 'flex-start',
   },
   activeMilestoneBadgeText: {
-    fontSize: 7.5,
+    fontSize: fontScale(7.5),
     fontWeight: '900',
-    color: '#047857',
+    color: colors.primaryText === '#ffffff' ? colors.primary : colors.primaryText,
   },
   activeMilestoneTitle: {
-    fontSize: 11.5,
+    fontSize: fontScale(11.5),
     fontWeight: '800',
-    color: '#1f2937',
+    color: colors.text,
     marginTop: 4,
   },
   activeMilestoneDesc: {
-    fontSize: 10,
-    color: '#6b7280',
+    fontSize: fontScale(10),
+    color: colors.text,
     lineHeight: 14,
   },
   timelineStepper: {
     gap: 10,
   },
   stepperSectionTitle: {
-    fontSize: 9,
+    fontSize: fontScale(9),
     fontWeight: '900',
-    color: '#9ca3af',
+    color: colors.subtext,
     textTransform: 'uppercase',
     letterSpacing: 0.5,
   },
@@ -1068,29 +1071,29 @@ const styles = StyleSheet.create({
     width: 18,
     height: 18,
     borderRadius: 9,
-    backgroundColor: '#ffffff',
+    backgroundColor: colors.card,
     borderWidth: 1.5,
-    borderColor: '#d1d5db',
+    borderColor: colors.border,
     alignItems: 'center',
     justifyContent: 'center',
     zIndex: 2,
   },
   stepDotCompleted: {
-    backgroundColor: '#059669',
-    borderColor: '#059669',
+    backgroundColor: colors.primary,
+    borderColor: colors.primary,
   },
   stepDotActive: {
-    borderColor: '#059669',
+    borderColor: colors.primary,
     borderWidth: 2,
   },
   stepDotText: {
-    fontSize: 7,
+    fontSize: fontScale(7),
     fontWeight: '800',
-    color: '#9ca3af',
+    color: colors.subtext,
   },
   stepLine: {
     width: 2,
-    backgroundColor: '#f3f4f6',
+    backgroundColor: colors.border,
     flex: 1,
     position: 'absolute',
     top: 18,
@@ -1098,38 +1101,38 @@ const styles = StyleSheet.create({
     zIndex: 1,
   },
   stepLineCompleted: {
-    backgroundColor: '#059669',
+    backgroundColor: colors.primary,
   },
   stepContentTextCol: {
     flex: 1,
     paddingTop: 1,
   },
   stepTitle: {
-    fontSize: 10.5,
+    fontSize: fontScale(10.5),
     fontWeight: '700',
-    color: '#4b5563',
+    color: colors.text,
   },
   stepTitleCompleted: {
-    color: '#9ca3af',
+    color: colors.subtext,
     textDecorationLine: 'line-through',
   },
   stepTitleActive: {
-    color: '#047857',
+    color: colors.primaryDark,
     fontWeight: '800',
   },
   stepDesc: {
-    fontSize: 9,
-    color: '#6b7280',
+    fontSize: fontScale(9),
+    color: colors.subtext,
     marginTop: 2.5,
     lineHeight: 13,
   },
   stepDescCompleted: {
-    color: '#9ca3af',
+    color: colors.subtext,
   },
   journalCard: {
-    backgroundColor: '#ffffff',
+    backgroundColor: colors.card,
     borderWidth: 1,
-    borderColor: '#f3f4f6',
+    borderColor: colors.border,
     borderRadius: 20,
     padding: 12,
     gap: 10,
@@ -1139,25 +1142,25 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     alignItems: 'center',
     borderBottomWidth: 1,
-    borderBottomColor: '#f3f4f6',
+    borderBottomColor: colors.border,
     paddingBottom: 8,
   },
   journalTitle: {
-    fontSize: 10,
+    fontSize: fontScale(10),
     fontWeight: '900',
-    color: '#374151',
+    color: colors.text,
     flex: 1,
   },
   journalCountBadge: {
-    backgroundColor: '#ecfdf5',
+    backgroundColor: colors.primaryLight,
     paddingHorizontal: 6,
     paddingVertical: 2,
     borderRadius: 6,
   },
   journalCountText: {
-    fontSize: 8,
+    fontSize: fontScale(8),
     fontWeight: '900',
-    color: '#059669',
+    color: colors.primaryText === '#ffffff' ? colors.primary : colors.primaryText,
   },
   journalLogsList: {
     maxHeight: 120,
@@ -1165,9 +1168,9 @@ const styles = StyleSheet.create({
     gap: 8,
   },
   journalEntryItem: {
-    backgroundColor: '#f9fafb',
+    backgroundColor: colors.background,
     borderWidth: 0.5,
-    borderColor: '#f3f4f6',
+    borderColor: colors.border,
     borderRadius: 10,
     padding: 8,
     gap: 2,
@@ -1177,18 +1180,18 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
   },
   journalEntryDay: {
-    fontSize: 8.5,
+    fontSize: fontScale(8.5),
     fontWeight: '900',
-    color: '#059669',
+    color: colors.primary,
   },
   journalEntryDate: {
-    fontSize: 8,
-    color: '#9ca3af',
+    fontSize: fontScale(8),
+    color: colors.subtext,
     fontWeight: '600',
   },
   journalEntryNote: {
-    fontSize: 9,
-    color: '#374151',
+    fontSize: fontScale(9),
+    color: colors.text,
     lineHeight: 13,
     marginTop: 1,
   },
@@ -1200,16 +1203,16 @@ const styles = StyleSheet.create({
   journalTextInput: {
     flex: 1,
     height: 32,
-    backgroundColor: '#f9fafb',
+    backgroundColor: colors.background,
     borderWidth: 1,
-    borderColor: '#e5e7eb',
+    borderColor: colors.border,
     borderRadius: 8,
     paddingHorizontal: 8,
-    fontSize: 10,
-    color: '#1f2937',
+    fontSize: fontScale(10),
+    color: colors.text,
   },
   addJournalBtn: {
-    backgroundColor: '#059669',
+    backgroundColor: colors.primary,
     borderRadius: 8,
     paddingHorizontal: 12,
     alignItems: 'center',
@@ -1217,27 +1220,28 @@ const styles = StyleSheet.create({
     height: 32,
   },
   addJournalBtnText: {
-    fontSize: 10,
+    fontSize: fontScale(10),
     fontWeight: '800',
-    color: '#ffffff',
+    color: colors.primaryText,
   },
   noActiveCropsCard: {
-    backgroundColor: '#ffffff',
+    backgroundColor: colors.card,
     borderWidth: 1,
-    borderColor: '#f3f4f6',
+    borderColor: colors.border,
     borderRadius: 20,
     padding: 20,
     alignItems: 'center',
   },
   noActiveCropsText: {
-    fontSize: 11.5,
+    fontSize: fontScale(11.5),
     fontWeight: '700',
-    color: '#4b5563',
+    color: colors.text,
   },
   noActiveCropsSub: {
-    fontSize: 9.5,
-    color: '#9ca3af',
+    fontSize: fontScale(9.5),
+    color: colors.subtext,
     textAlign: 'center',
     marginTop: 4,
   }
 });
+

@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { View, Text, TextInput, StyleSheet } from 'react-native';
+import { useTheme } from '../store/useThemeStore';
 
 export const Input = ({
   label,
@@ -12,6 +13,7 @@ export const Input = ({
   ...props
 }) => {
   const [isFocused, setIsFocused] = useState(false);
+  const { colors, fontScale } = useTheme();
 
   const handleFocus = (e) => {
     setIsFocused(true);
@@ -25,18 +27,29 @@ export const Input = ({
 
   return (
     <View style={[styles.container, style]}>
-      {label && <Text style={styles.label}>{label}</Text>}
+      {label && (
+        <Text style={[
+          styles.label, 
+          { color: colors.subtext, fontSize: fontScale(10) }
+        ]}>
+          {label}
+        </Text>
+      )}
       
       <View style={[
         styles.inputWrapper,
-        isFocused && styles.inputWrapperFocused,
+        { backgroundColor: colors.background, borderColor: colors.border },
+        isFocused && { borderColor: colors.primary, backgroundColor: colors.card },
         error && styles.inputWrapperError
       ]}>
         {leftIcon && <View style={styles.iconLeft}>{leftIcon}</View>}
         
         <TextInput
-          style={styles.textInput}
-          placeholderTextColor="#9ca3af"
+          style={[
+            styles.textInput, 
+            { color: colors.text, fontSize: fontScale(14) }
+          ]}
+          placeholderTextColor={colors.placeholder}
           onFocus={handleFocus}
           onBlur={handleBlur}
           autoCapitalize="none"
@@ -46,7 +59,14 @@ export const Input = ({
         {rightIcon && <View style={styles.iconRight}>{rightIcon}</View>}
       </View>
       
-      {error && <Text style={styles.errorText}>{error}</Text>}
+      {error && (
+        <Text style={[
+          styles.errorText, 
+          { fontSize: fontScale(11) }
+        ]}>
+          {error}
+        </Text>
+      )}
     </View>
   );
 };
@@ -57,9 +77,7 @@ const styles = StyleSheet.create({
     marginBottom: 16,
   },
   label: {
-    fontSize: 12,
     fontWeight: '700',
-    color: '#6b7280', // text-neutral-500
     marginBottom: 6,
     textTransform: 'uppercase',
     letterSpacing: 0.5,
@@ -68,15 +86,9 @@ const styles = StyleSheet.create({
     height: 48,
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#f9fafb',
     borderWidth: 1.5,
-    borderColor: '#e5e7eb',
     borderRadius: 12,
     paddingHorizontal: 12,
-  },
-  inputWrapperFocused: {
-    borderColor: '#059669', // Primary Green
-    backgroundColor: '#ffffff',
   },
   inputWrapperError: {
     borderColor: '#ef4444',
@@ -84,8 +96,6 @@ const styles = StyleSheet.create({
   textInput: {
     flex: 1,
     height: '100%',
-    color: '#111827',
-    fontSize: 14,
     fontWeight: '500',
     paddingVertical: 0,
   },
@@ -100,10 +110,10 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   errorText: {
-    fontSize: 11,
     color: '#ef4444',
     fontWeight: '600',
     marginTop: 4,
     marginLeft: 4,
   },
 });
+

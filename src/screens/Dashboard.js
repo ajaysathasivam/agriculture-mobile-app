@@ -3,25 +3,31 @@ import {
   View, 
   Text, 
   StyleSheet, 
-  SafeAreaView, 
   TouchableOpacity, 
   Platform,
   StatusBar
 } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
+import { useTheme } from '../store/useThemeStore';
 
 // Import sub tab screens
 import { HomeTab } from './HomeTab';
+import { TodoTab } from './TodoTab';
 import { LandsTab } from './LandsTab';
 import { ProfileTab } from './ProfileTab';
 
 export const Dashboard = ({ onNavigate }) => {
-  const [activeTab, setActiveTab] = useState('home'); // 'home' | 'lands' | 'profile'
+  const [activeTab, setActiveTab] = useState('home'); // 'home' | 'todo' | 'lands' | 'profile'
+  const { colors, fontScale } = useTheme();
+  const styles = getStyles(colors, fontScale);
 
   const renderActiveTabContent = () => {
     switch (activeTab) {
       case 'home':
         return <HomeTab onNavigate={onNavigate} />;
+      case 'todo':
+        return <TodoTab />;
       case 'lands':
         return <LandsTab onNavigate={onNavigate} />;
       case 'profile':
@@ -35,6 +41,8 @@ export const Dashboard = ({ onNavigate }) => {
     switch (activeTab) {
       case 'home':
         return 'Sprout Farm Overview';
+      case 'todo':
+        return 'Farm Activities Checklist';
       case 'lands':
         return 'Registered Fields';
       case 'profile':
@@ -49,7 +57,7 @@ export const Dashboard = ({ onNavigate }) => {
       {/* Header */}
       <View style={styles.header}>
         <View style={styles.headerTitleRow}>
-          <MaterialIcons name="agriculture" size={22} color="#059669" />
+          <MaterialIcons name="agriculture" size={22} color={colors.primary} />
           <Text style={styles.headerTitle}>{getHeaderTitle()}</Text>
         </View>
       </View>
@@ -69,10 +77,25 @@ export const Dashboard = ({ onNavigate }) => {
           <MaterialIcons 
             name="home" 
             size={24} 
-            color={activeTab === 'home' ? '#059669' : '#9ca3af'} 
+            color={activeTab === 'home' ? colors.primary : colors.subtext} 
           />
           <Text style={[styles.tabLabel, activeTab === 'home' && styles.tabLabelActive]}>
             Home
+          </Text>
+        </TouchableOpacity>
+
+        <TouchableOpacity 
+          style={styles.tabItem} 
+          onPress={() => setActiveTab('todo')}
+          activeOpacity={0.8}
+        >
+          <MaterialIcons 
+            name="assignment" 
+            size={24} 
+            color={activeTab === 'todo' ? colors.primary : colors.subtext} 
+          />
+          <Text style={[styles.tabLabel, activeTab === 'todo' && styles.tabLabelActive]}>
+            Todo
           </Text>
         </TouchableOpacity>
 
@@ -84,7 +107,7 @@ export const Dashboard = ({ onNavigate }) => {
           <MaterialIcons 
             name="landscape" 
             size={24} 
-            color={activeTab === 'lands' ? '#059669' : '#9ca3af'} 
+            color={activeTab === 'lands' ? colors.primary : colors.subtext} 
           />
           <Text style={[styles.tabLabel, activeTab === 'lands' && styles.tabLabelActive]}>
             Fields
@@ -99,7 +122,7 @@ export const Dashboard = ({ onNavigate }) => {
           <MaterialIcons 
             name="person" 
             size={24} 
-            color={activeTab === 'profile' ? '#059669' : '#9ca3af'} 
+            color={activeTab === 'profile' ? colors.primary : colors.subtext} 
           />
           <Text style={[styles.tabLabel, activeTab === 'profile' && styles.tabLabelActive]}>
             Profile
@@ -110,17 +133,16 @@ export const Dashboard = ({ onNavigate }) => {
   );
 };
 
-const styles = StyleSheet.create({
+const getStyles = (colors, fontScale) => StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#ffffff',
-    paddingTop: Platform.OS === 'android' ? StatusBar.currentHeight : 0,
+    backgroundColor: colors.background,
   },
   header: {
     height: 52,
-    backgroundColor: '#ffffff',
+    backgroundColor: colors.card,
     borderBottomWidth: 1,
-    borderBottomColor: '#f3f4f6',
+    borderBottomColor: colors.border,
     justifyContent: 'center',
     paddingHorizontal: 16,
   },
@@ -130,20 +152,20 @@ const styles = StyleSheet.create({
     gap: 8,
   },
   headerTitle: {
-    fontSize: 14,
+    fontSize: fontScale(14),
     fontWeight: '800',
-    color: '#1f2937',
+    color: colors.text,
   },
   body: {
     flex: 1,
+    backgroundColor: colors.background,
   },
   tabBar: {
     height: 56,
     flexDirection: 'row',
-    backgroundColor: '#ffffff',
+    backgroundColor: colors.card,
     borderTopWidth: 1,
-    borderTopColor: '#f3f4f6',
-    paddingBottom: Platform.OS === 'ios' ? 10 : 0,
+    borderTopColor: colors.border,
   },
   tabItem: {
     flex: 1,
@@ -152,11 +174,12 @@ const styles = StyleSheet.create({
     gap: 2,
   },
   tabLabel: {
-    fontSize: 9,
+    fontSize: fontScale(9),
     fontWeight: '700',
-    color: '#9ca3af',
+    color: colors.subtext,
   },
   tabLabelActive: {
-    color: '#059669',
+    color: colors.primary,
   }
 });
+

@@ -7,15 +7,16 @@ import {
   KeyboardAvoidingView, 
   Platform, 
   ScrollView,
-  SafeAreaView,
   StatusBar
 } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 import { Formik } from 'formik';
 import * as Yup from 'yup';
 import { Input } from '../components/Input';
 import { Button } from '../components/Button';
 import { useStore } from '../store/useStore';
+import { useTheme } from '../store/useThemeStore';
 
 // Registration Validation Schema
 const registerSchema = Yup.object().shape({
@@ -41,6 +42,8 @@ export const Register = ({ onNavigate }) => {
   const [isLoading, setIsLoading] = useState(false);
 
   const triggerToast = useStore((state) => state.triggerToast);
+  const { colors, fontScale } = useTheme();
+  const styles = getStyles(colors, fontScale);
 
   const handleRegisterSubmit = (values) => {
     // Agree to terms check
@@ -173,11 +176,10 @@ export const Register = ({ onNavigate }) => {
   );
 };
 
-const styles = StyleSheet.create({
+const getStyles = (colors, fontScale) => StyleSheet.create({
   safeArea: {
     flex: 1,
-    backgroundColor: '#ffffff',
-    paddingTop: Platform.OS === 'android' ? StatusBar.currentHeight : 0,
+    backgroundColor: colors.background,
   },
   keyboardView: {
     flex: 1,
@@ -191,57 +193,80 @@ const styles = StyleSheet.create({
   header: {
     alignItems: 'center',
     marginTop: 20,
-    marginBottom: 28,
+    marginBottom: 24,
   },
-  title: {
-    fontSize: 24,
+  logoBadge: {
+    width: 60,
+    height: 60,
+    borderRadius: 18,
+    backgroundColor: colors.primary,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: 12,
+    shadowColor: colors.primary,
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.2,
+    shadowRadius: 8,
+    elevation: 4,
+  },
+  logoEmoji: {
+    fontSize: fontScale(30),
+  },
+  logoText: {
+    fontSize: fontScale(24),
     fontWeight: '900',
-    color: '#111827',
+    color: colors.text,
     letterSpacing: -0.5,
   },
-  subtitle: {
-    fontSize: 13,
-    color: '#9ca3af',
+  subtext: {
+    fontSize: fontScale(10),
+    fontWeight: '800',
+    color: colors.primary,
+    letterSpacing: 2,
+    marginTop: 4,
+  },
+  description: {
+    fontSize: fontScale(12.5),
+    color: colors.subtext,
     textAlign: 'center',
     marginTop: 8,
+    lineHeight: 18,
+    paddingHorizontal: 16,
   },
   form: {
     width: '100%',
-    marginBottom: 32,
-  },
-  termsRow: {
-    marginTop: 4,
     marginBottom: 24,
   },
-  checkboxContainer: {
+  termsRow: {
     flexDirection: 'row',
-    alignItems: 'flex-start',
+    alignItems: 'center',
+    marginTop: 4,
+    marginBottom: 24,
+    paddingHorizontal: 4,
   },
   checkbox: {
     width: 18,
     height: 18,
     borderRadius: 4,
     borderWidth: 1.5,
-    borderColor: '#d1d5db',
+    borderColor: colors.border,
     marginRight: 10,
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: '#ffffff',
-    marginTop: 2,
+    backgroundColor: colors.card,
   },
   checkboxChecked: {
-    backgroundColor: '#059669',
-    borderColor: '#059669',
+    backgroundColor: colors.primary,
+    borderColor: colors.primary,
   },
-  termsLabel: {
-    flex: 1,
-    fontSize: 12,
-    color: '#6b7280',
-    lineHeight: 18,
+  termsText: {
+    fontSize: fontScale(11.5),
+    color: colors.subtext,
     fontWeight: '500',
+    flex: 1,
   },
-  linkText: {
-    color: '#059669',
+  termsLink: {
+    color: colors.primary,
     fontWeight: '700',
   },
   submitButton: {
@@ -252,17 +277,18 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     borderTopWidth: 1,
-    borderTopColor: '#f3f4f6',
+    borderTopColor: colors.border,
     paddingTop: 24,
+    marginTop: 16,
   },
   footerText: {
-    fontSize: 12,
-    color: '#6b7280',
+    fontSize: fontScale(12),
+    color: colors.subtext,
     fontWeight: '500',
   },
   signInLink: {
-    fontSize: 12,
+    fontSize: fontScale(12),
     fontWeight: '700',
-    color: '#059669',
+    color: colors.primary,
   },
 });

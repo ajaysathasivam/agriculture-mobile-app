@@ -7,9 +7,9 @@ import {
   KeyboardAvoidingView, 
   Platform, 
   ScrollView,
-  SafeAreaView,
   StatusBar
 } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
 import { Formik } from 'formik';
@@ -17,6 +17,7 @@ import * as Yup from 'yup';
 import { Input } from '../components/Input';
 import { Button } from '../components/Button';
 import { useStore } from '../store/useStore';
+import { useTheme } from '../store/useThemeStore';
 
 // Login Validation Schema
 const loginSchema = Yup.object().shape({
@@ -35,6 +36,8 @@ export const Login = ({ onNavigate }) => {
   const [isLoading, setIsLoading] = useState(false);
 
   const triggerToast = useStore((state) => state.triggerToast);
+  const { colors, fontScale } = useTheme();
+  const styles = getStyles(colors, fontScale);
 
   const handleLoginSubmit = (values) => {
     setIsLoading(true);
@@ -155,11 +158,10 @@ export const Login = ({ onNavigate }) => {
   );
 };
 
-const styles = StyleSheet.create({
+const getStyles = (colors, fontScale) => StyleSheet.create({
   safeArea: {
     flex: 1,
-    backgroundColor: '#ffffff',
-    paddingTop: Platform.OS === 'android' ? StatusBar.currentHeight : 0,
+    backgroundColor: colors.background,
   },
   keyboardView: {
     flex: 1,
@@ -179,35 +181,35 @@ const styles = StyleSheet.create({
     width: 64,
     height: 64,
     borderRadius: 18,
-    backgroundColor: '#059669', // primary-600
+    backgroundColor: colors.primary,
     alignItems: 'center',
     justifyContent: 'center',
     marginBottom: 12,
-    shadowColor: '#059669',
+    shadowColor: colors.primary,
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.2,
     shadowRadius: 8,
     elevation: 4,
   },
   logoEmoji: {
-    fontSize: 32,
+    fontSize: fontScale(32),
   },
   logoText: {
-    fontSize: 24,
+    fontSize: fontScale(24),
     fontWeight: '900',
-    color: '#111827',
+    color: colors.text,
     letterSpacing: -0.5,
   },
   subtext: {
-    fontSize: 10,
+    fontSize: fontScale(10),
     fontWeight: '800',
-    color: '#059669',
+    color: colors.primary,
     letterSpacing: 2,
     marginTop: 4,
   },
   description: {
-    fontSize: 13,
-    color: '#9ca3af',
+    fontSize: fontScale(13),
+    color: colors.subtext,
     textAlign: 'center',
     marginTop: 12,
     lineHeight: 18,
@@ -233,25 +235,25 @@ const styles = StyleSheet.create({
     height: 18,
     borderRadius: 4,
     borderWidth: 1.5,
-    borderColor: '#d1d5db',
+    borderColor: colors.border,
     marginRight: 8,
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: '#ffffff',
+    backgroundColor: colors.card,
   },
   checkboxChecked: {
-    backgroundColor: '#059669',
-    borderColor: '#059669',
+    backgroundColor: colors.primary,
+    borderColor: colors.primary,
   },
   checkboxLabel: {
-    fontSize: 12,
-    color: '#6b7280',
+    fontSize: fontScale(12),
+    color: colors.subtext,
     fontWeight: '600',
   },
   forgotText: {
-    fontSize: 12,
+    fontSize: fontScale(12),
     fontWeight: '700',
-    color: '#059669',
+    color: colors.primary,
   },
   submitButton: {
     marginTop: 8,
@@ -261,17 +263,17 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     borderTopWidth: 1,
-    borderTopColor: '#f3f4f6',
+    borderTopColor: colors.border,
     paddingTop: 24,
   },
   footerText: {
-    fontSize: 12,
-    color: '#6b7280',
+    fontSize: fontScale(12),
+    color: colors.subtext,
     fontWeight: '500',
   },
   signUpLink: {
-    fontSize: 12,
+    fontSize: fontScale(12),
     fontWeight: '700',
-    color: '#059669',
+    color: colors.primary,
   },
 });

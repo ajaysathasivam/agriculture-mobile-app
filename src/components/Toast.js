@@ -1,6 +1,7 @@
 import React, { useEffect } from 'react';
 import { TouchableOpacity, Text, StyleSheet } from 'react-native';
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
+import { useTheme } from '../store/useThemeStore';
 
 export const Toast = ({ 
   isOpen, 
@@ -9,6 +10,8 @@ export const Toast = ({
   onClose,
   duration = 3000 
 }) => {
+  const { colors, fontScale } = useTheme();
+
   useEffect(() => {
     if (isOpen && duration > 0) {
       const timer = setTimeout(() => {
@@ -32,21 +35,21 @@ export const Toast = ({
 
   const getIconColor = () => {
     switch(type) {
-      case 'success': return '#059669';
-      case 'warning': return '#d97706';
-      case 'error': return '#dc2626';
-      case 'info': return '#2563eb';
-      default: return '#059669';
+      case 'success': return colors.toastSuccessText;
+      case 'warning': return colors.toastWarningText;
+      case 'error': return colors.toastErrorText;
+      case 'info': return colors.toastInfoText;
+      default: return colors.toastSuccessText;
     }
   };
 
   const getStyle = () => {
     switch(type) {
-      case 'success': return styles.success;
-      case 'warning': return styles.warning;
-      case 'error': return styles.error;
-      case 'info': return styles.info;
-      default: return styles.success;
+      case 'success': return { backgroundColor: colors.toastSuccessBg, borderColor: colors.border };
+      case 'warning': return { backgroundColor: colors.toastWarningBg, borderColor: colors.border };
+      case 'error': return { backgroundColor: colors.toastErrorBg, borderColor: colors.border };
+      case 'info': return { backgroundColor: colors.toastInfoBg, borderColor: colors.border };
+      default: return { backgroundColor: colors.toastSuccessBg, borderColor: colors.border };
     }
   };
 
@@ -62,7 +65,7 @@ export const Toast = ({
         color={getIconColor()} 
         style={styles.icon}
       />
-      <Text style={styles.text}>{message}</Text>
+      <Text style={[styles.text, { color: colors.text, fontSize: fontScale(13) }]}>{message}</Text>
     </TouchableOpacity>
   );
 };
@@ -81,32 +84,15 @@ const styles = StyleSheet.create({
     shadowRadius: 10,
     elevation: 5,
     borderWidth: 1,
-    marginBottom: 8, // margin for vertical stacking space
-  },
-  success: {
-    backgroundColor: '#ecfdf5',
-    borderColor: '#a7f3d0',
-  },
-  warning: {
-    backgroundColor: '#fffbeb',
-    borderColor: '#fde68a',
-  },
-  error: {
-    backgroundColor: '#fef2f2',
-    borderColor: '#fca5a5',
-  },
-  info: {
-    backgroundColor: '#eff6ff',
-    borderColor: '#bfdbfe',
+    marginBottom: 8,
   },
   icon: {
     marginRight: 10,
   },
   text: {
     flex: 1,
-    fontSize: 13,
     fontWeight: '600',
-    color: '#374151',
     lineHeight: 18,
   },
 });
+

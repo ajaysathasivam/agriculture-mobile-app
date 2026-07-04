@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
-import { StyleSheet, View, Text, SafeAreaView } from 'react-native';
+import { StyleSheet, View, Text } from 'react-native';
+import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { StatusBar } from 'expo-status-bar';
 import { MaterialIcons } from '@expo/vector-icons';
 import { Login } from './src/screens/Login';
@@ -7,6 +8,7 @@ import { Register } from './src/screens/Register';
 import { Button } from './src/components/Button';
 import { Toast } from './src/components/Toast';
 import { useStore } from './src/store/useStore';
+import { useTheme } from './src/store/useThemeStore';
 
 import { LandWizard } from './src/screens/LandWizard';
 import { MapMeasurement } from './src/screens/MapMeasurement';
@@ -28,8 +30,12 @@ export default function App() {
   const removeToastAction = useStore((state) => state.removeToast);
   const triggerToastAction = useStore((state) => state.triggerToast);
 
+  // Theme Hook
+  const { colors } = useTheme();
+
   return (
-    <View style={styles.container}>
+    <SafeAreaProvider>
+      <View style={[styles.container, { backgroundColor: colors.background }]}>
       {!isAuthenticated ? (
         <>
           {currentScreen === 'login' && (
@@ -73,10 +79,12 @@ export default function App() {
         ))}
       </View>
       
-      <StatusBar style="auto" />
-    </View>
+      <StatusBar style={colors.statusBar} />
+      </View>
+    </SafeAreaProvider>
   );
 }
+
 
 const styles = StyleSheet.create({
   container: {
