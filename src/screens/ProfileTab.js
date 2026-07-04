@@ -14,6 +14,7 @@ import {
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 import { Button } from '../components/Button';
 import { useStore } from '../store/useStore';
+import { useTheme } from '../store/useThemeStore';
 import { cropsDatabase } from '../data/crops';
 
 const getLandTypeLabel = (type) => {
@@ -38,10 +39,23 @@ export const ProfileTab = ({ onNavigate }) => {
   const logoutAction = useStore(state => state.logout);
   const resetAppData = useStore(state => state.resetAppData);
 
-  // Appearance states
-  const [themeMode, setThemeMode] = useState('light');
-  const [pureBlack, setPureBlack] = useState(false);
-  const [colorTheme, setColorTheme] = useState('forest');
+  // Appearance states from custom theme store
+  const { 
+    themeMode, 
+    pureBlack, 
+    colorTheme, 
+    fontSize,
+    colors, 
+    fontScale,
+    isDark,
+    setThemeMode, 
+    setPureBlack, 
+    setColorTheme,
+    setFontSize
+  } = useTheme();
+
+  const styles = getStyles(colors, fontScale, isDark);
+
 
   // Sub-views state: 'main' | 'crops-list' | 'crop-create' | 'harvests-history' | 'inventory'
   const [subView, setSubView] = useState('main');
@@ -234,8 +248,8 @@ export const ProfileTab = ({ onNavigate }) => {
               <Text style={styles.avatarEmoji}>{user?.avatar || '🧑‍🌾'}</Text>
             </View>
             <View style={styles.profileInfoText}>
-              <Text style={styles.profileName}>{user?.name || 'Farmer'}</Text>
-              <Text style={styles.profileEmail}>{user?.email || 'farmer@sprout.com'}</Text>
+              <Text style={styles.userName}>{user?.name || 'Farmer'}</Text>
+              <Text style={styles.userEmail}>{user?.email || 'farmer@sprout.com'}</Text>
             </View>
             <Button size="sm" variant="outline" style={styles.editBtn} onPress={() => setEditProfileOpen(true)}>
               Edit Profile Info
@@ -257,11 +271,11 @@ export const ProfileTab = ({ onNavigate }) => {
                 Define custom recipes with specialized milestones, fertilizers, and watering alerts.
               </Text>
               <View style={styles.menuItemBtnRow}>
-                <TouchableOpacity style={[styles.menuItemBtn, { backgroundColor: '#ecfdf5' }]} onPress={() => setSubView('crops-list')}>
-                  <Text style={[styles.menuItemBtnText, { color: '#059669' }]}>View recipes</Text>
-                </TouchableOpacity>
-                <TouchableOpacity style={[styles.menuItemBtn, { backgroundColor: '#f3f4f6' }]} onPress={() => setSubView('crop-create')}>
-                  <Text style={[styles.menuItemBtnText, { color: '#4b5563' }]}>＋ Define new</Text>
+                <Button style={styles.primaryMenuBtn} onPress={() => setSubView('crops-list')}>
+                  <Text >View recipes</Text>
+                </Button>
+                <TouchableOpacity style={styles.secondaryMenuBtn} onPress={() => setSubView('crop-create')}>
+                  <Text style={styles.secondaryMenuBtnText}>＋ Define new</Text>
                 </TouchableOpacity>
               </View>
             </View>
@@ -337,8 +351,8 @@ export const ProfileTab = ({ onNavigate }) => {
                     setPureBlack(val);
                     triggerToast(`Pure Black Mode ${val ? 'enabled' : 'disabled'}!`, 'info');
                   }}
-                  trackColor={{ false: '#d1d5db', true: '#a7f3d0' }}
-                  thumbColor={pureBlack ? '#059669' : '#f3f4f6'}
+                  trackColor={{ false: colors.border, true: colors.primaryLight }}
+                  thumbColor={pureBlack ? colors.primary : colors.border}
                 />
               </View>
 
@@ -368,6 +382,27 @@ export const ProfileTab = ({ onNavigate }) => {
                       {colorTheme === theme.id && (
                         <MaterialIcons name="check" size={14} color="#ffffff" />
                       )}
+                    </TouchableOpacity>
+                  ))}
+                </View>
+              </View>
+
+              {/* App Font Size Segmented Controller */}
+              <View style={styles.settingOption}>
+                <Text style={styles.settingOptionLabel}>App Font Size</Text>
+                <View style={styles.segmentedRow}>
+                  {['small', 'medium', 'large', 'extra-large'].map((sz) => (
+                    <TouchableOpacity 
+                      key={sz} 
+                      style={[styles.segmentedBtn, fontSize === sz && styles.segmentedBtnActive]}
+                      onPress={() => {
+                        setFontSize(sz);
+                        triggerToast(`Font size changed to ${sz}!`, 'success');
+                      }}
+                    >
+                      <Text style={[styles.segmentedBtnText, fontSize === sz && styles.segmentedBtnTextActive, { textTransform: 'capitalize' }]}>
+                        {sz}
+                      </Text>
                     </TouchableOpacity>
                   ))}
                 </View>
@@ -421,7 +456,12 @@ export const ProfileTab = ({ onNavigate }) => {
 
             {/* Sign Out Card */}
             <View style={styles.signOutCard}>
-              <Button variant="outline" style={styles.signOutBtn} onPress={handleLogout}>
+              <Button 
+                variant="outline" 
+                style={styles.signOutBtn} 
+                textStyle={styles.signOutBtnText}
+                onPress={handleLogout}
+              >
                 Sign Out from App
               </Button>
             </View>
@@ -435,18 +475,18 @@ export const ProfileTab = ({ onNavigate }) => {
         <View style={styles.subContainer}>
           <View style={styles.subHeader}>
             <TouchableOpacity onPress={() => setSubView('main')} style={styles.subBackBtn}>
-              <MaterialIcons name="arrow-back-ios" size={18} color="#4b5563" />
+              <MaterialIcons name="arrow-back-ios" size={18} color={colors.subtext} />
             </TouchableOpacity>
             <Text style={styles.subHeaderTitle}>Crop Recipes Catalog</Text>
             <View style={styles.backButtonPlaceholder} />
           </View>
           
           <View style={styles.searchBarWrapper}>
-            <MaterialIcons name="search" size={16} color="#9ca3af" style={styles.searchIcon} />
+            <MaterialIcons name="search" size={16} color={colors.subtext} style={styles.searchIcon} />
             <TextInput
               style={styles.searchBarInput}
               placeholder="Search crop recipes..."
-              placeholderTextColor="#9ca3af"
+              placeholderTextColor={colors.placeholder}
               value={cropSearch}
               onChangeText={setCropSearch}
             />
@@ -471,7 +511,7 @@ export const ProfileTab = ({ onNavigate }) => {
                           <Text style={styles.customCropRecipeBadgeText}>CUSTOM</Text>
                         </View>
                       ) : null}
-                      <MaterialIcons name={isExpanded ? "expand-less" : "expand-more"} size={20} color="#9ca3af" />
+                      <MaterialIcons name={isExpanded ? "expand-less" : "expand-more"} size={20} color={colors.subtext} />
                     </View>
                   </TouchableOpacity>
 
@@ -550,7 +590,7 @@ export const ProfileTab = ({ onNavigate }) => {
         <View style={styles.subContainer}>
           <View style={styles.subHeader}>
             <TouchableOpacity onPress={() => setSubView('main')} style={styles.subBackBtn}>
-              <MaterialIcons name="arrow-back-ios" size={18} color="#4b5563" />
+              <MaterialIcons name="arrow-back-ios" size={18} color={colors.subtext} />
             </TouchableOpacity>
             <Text style={styles.subHeaderTitle}>Define Custom Crop Recipe</Text>
             <View style={styles.backButtonPlaceholder} />
@@ -562,7 +602,7 @@ export const ProfileTab = ({ onNavigate }) => {
               <TextInput
                 style={styles.formInput}
                 placeholder="e.g. Basmati Paddy"
-                placeholderTextColor="#9ca3af"
+                placeholderTextColor={colors.placeholder}
                 value={formNameEnglish}
                 onChangeText={setFormNameEnglish}
               />
@@ -573,7 +613,7 @@ export const ProfileTab = ({ onNavigate }) => {
               <TextInput
                 style={styles.formInput}
                 placeholder="e.g. பாஸ்மதி நெல்"
-                placeholderTextColor="#9ca3af"
+                placeholderTextColor={colors.placeholder}
                 value={formNameTamil}
                 onChangeText={setFormNameTamil}
               />
@@ -585,7 +625,7 @@ export const ProfileTab = ({ onNavigate }) => {
                 style={styles.formInput}
                 keyboardType="numeric"
                 placeholder="e.g. 90"
-                placeholderTextColor="#9ca3af"
+                placeholderTextColor={colors.placeholder}
                 value={formDuration}
                 onChangeText={setFormDuration}
               />
@@ -598,7 +638,7 @@ export const ProfileTab = ({ onNavigate }) => {
                 multiline
                 numberOfLines={3}
                 placeholder="Add primary steps for preparing nursery beds and transplanting..."
-                placeholderTextColor="#9ca3af"
+                placeholderTextColor={colors.placeholder}
                 value={formInstructions}
                 onChangeText={setFormInstructions}
               />
@@ -658,7 +698,7 @@ export const ProfileTab = ({ onNavigate }) => {
         <View style={styles.subContainer}>
           <View style={styles.subHeader}>
             <TouchableOpacity onPress={() => setSubView('main')} style={styles.subBackBtn}>
-              <MaterialIcons name="arrow-back-ios" size={18} color="#4b5563" />
+              <MaterialIcons name="arrow-back-ios" size={18} color={colors.subtext} />
             </TouchableOpacity>
             <Text style={styles.subHeaderTitle}>Historic Yield Archives</Text>
             <View style={styles.backButtonPlaceholder} />
@@ -702,7 +742,7 @@ export const ProfileTab = ({ onNavigate }) => {
         <View style={styles.subContainer}>
           <View style={styles.subHeader}>
             <TouchableOpacity onPress={() => setSubView('main')} style={styles.subBackBtn}>
-              <MaterialIcons name="arrow-back-ios" size={18} color="#4b5563" />
+              <MaterialIcons name="arrow-back-ios" size={18} color={colors.subtext} />
             </TouchableOpacity>
             <Text style={styles.subHeaderTitle}>Input Stock Inventory</Text>
             <View style={styles.backButtonPlaceholder} />
@@ -732,7 +772,7 @@ export const ProfileTab = ({ onNavigate }) => {
                     style={styles.invDeleteBtn}
                     onPress={() => handleDeleteInventory(item.id, item.name)}
                   >
-                    <MaterialIcons name="delete" size={18} color="#ef4444" />
+                    <MaterialIcons name="delete" size={18} color={colors.toastErrorText} />
                   </TouchableOpacity>
                 </View>
               </View>
@@ -754,6 +794,7 @@ export const ProfileTab = ({ onNavigate }) => {
                 style={styles.formInput}
                 value={editName}
                 onChangeText={setEditName}
+                placeholderTextColor={colors.placeholder}
               />
             </View>
 
@@ -764,6 +805,7 @@ export const ProfileTab = ({ onNavigate }) => {
                 keyboardType="email-address"
                 value={editEmail}
                 onChangeText={setEditEmail}
+                placeholderTextColor={colors.placeholder}
               />
             </View>
 
@@ -806,7 +848,7 @@ export const ProfileTab = ({ onNavigate }) => {
                       {getLandTypeLabel(land.landType)} • {land.area}
                     </Text>
                   </View>
-                  {sowLandId === land.id && <MaterialIcons name="check-circle" size={18} color="#059669" />}
+                  {sowLandId === land.id && <MaterialIcons name="check-circle" size={18} color={colors.primary} />}
                 </TouchableOpacity>
               ))}
             </View>
@@ -834,7 +876,7 @@ export const ProfileTab = ({ onNavigate }) => {
               <TextInput
                 style={styles.formInput}
                 placeholder="e.g. CO-51 Paddy Seeds"
-                placeholderTextColor="#9ca3af"
+                placeholderTextColor={colors.placeholder}
                 value={invItemName}
                 onChangeText={setInvItemName}
               />
@@ -864,6 +906,7 @@ export const ProfileTab = ({ onNavigate }) => {
                 keyboardType="numeric"
                 value={invItemQuantity}
                 onChangeText={setInvItemQuantity}
+                placeholderTextColor={colors.placeholder}
               />
             </View>
 
@@ -900,14 +943,14 @@ export const ProfileTab = ({ onNavigate }) => {
   );
 };
 
-const styles = StyleSheet.create({
+const getStyles = (colors, fontScale, isDark) => StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#f9fafb',
+    backgroundColor: colors.background,
   },
   subContainer: {
     flex: 1,
-    backgroundColor: '#ffffff',
+    backgroundColor: colors.card,
   },
   scrollContent: {
     padding: 16,
@@ -915,15 +958,15 @@ const styles = StyleSheet.create({
     gap: 20,
   },
   profileHeaderCard: {
-    backgroundColor: '#ffffff',
+    backgroundColor: colors.card,
     borderWidth: 1,
-    borderColor: '#f3f4f6',
+    borderColor: colors.border,
     borderRadius: 24,
     padding: 20,
     alignItems: 'center',
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.02,
+    shadowOpacity: isDark ? 0.2 : 0.02,
     shadowRadius: 6,
     elevation: 1,
   },
@@ -931,78 +974,80 @@ const styles = StyleSheet.create({
     width: 64,
     height: 64,
     borderRadius: 32,
-    backgroundColor: '#059669',
+    backgroundColor: colors.primaryLight,
     alignItems: 'center',
     justifyContent: 'center',
+    marginBottom: 12,
   },
   avatarEmoji: {
-    fontSize: 28,
+    fontSize: fontScale(28),
   },
-  profileInfoText: {
-    alignItems: 'center',
-    marginTop: 10,
-    marginBottom: 16,
+  avatarText: {
+    fontSize: fontScale(24),
+    fontWeight: '900',
+    color: colors.primaryText === '#ffffff' ? colors.primary : colors.primaryText,
   },
-  profileName: {
-    fontSize: 15,
+  userName: {
+    fontSize: fontScale(16),
     fontWeight: '800',
-    color: '#1f2937',
+    color: colors.text,
   },
-  profileEmail: {
-    fontSize: 11,
-    color: '#6b7280',
+  userEmail: {
+    fontSize: fontScale(11.5),
+    color: colors.subtext,
     marginTop: 2,
     fontWeight: '550',
   },
+  profileInfoText: {
+    alignItems: 'center',
+    marginBottom: 12,
+  },
   editBtn: {
-    width: '100%',
+    marginTop: 12,
+    width: '45%',
   },
   menuGrid: {
     gap: 16,
   },
   menuItemCard: {
-    backgroundColor: '#ffffff',
-    borderWidth: 1,
-    borderColor: '#f3f4f6',
+    backgroundColor: colors.card,
     borderRadius: 24,
-    padding: 20,
-    gap: 10,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.02,
-    shadowRadius: 6,
-    elevation: 1,
+    borderWidth: 1,
+    borderColor: colors.border,
+    padding: 16,
+    gap: 12,
   },
   menuItemHeader: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
     borderBottomWidth: 1,
-    borderBottomColor: '#f3f4f6',
-    paddingBottom: 8,
+    borderBottomColor: colors.border,
+    paddingBottom: 10,
+    marginBottom: 4,
   },
   menuItemTitle: {
-    fontSize: 10,
-    fontWeight: '900',
-    color: '#1f2937',
+    fontSize: fontScale(12.5),
+    fontWeight: '850',
+    color: colors.text,
     letterSpacing: 0.5,
   },
   menuItemBadge: {
-    backgroundColor: '#ecfdf5',
+    backgroundColor: colors.primaryLight,
     borderWidth: 0.5,
-    borderColor: '#a7f3d0',
+    borderColor: colors.primary,
     paddingHorizontal: 6,
     paddingVertical: 2,
     borderRadius: 6,
   },
   menuItemBadgeText: {
-    fontSize: 7.5,
+    fontSize: fontScale(9),
     fontWeight: '900',
-    color: '#059669',
+    color: colors.primary,
   },
   menuItemDesc: {
-    fontSize: 11,
-    color: '#6b7280',
+    fontSize: fontScale(11),
+    color: colors.subtext,
     lineHeight: 16,
     fontWeight: '500',
   },
@@ -1011,40 +1056,61 @@ const styles = StyleSheet.create({
     gap: 10,
     marginTop: 4,
   },
-  menuItemBtn: {
+  primaryMenuBtn: {
+    flex: 1,
+    paddingVertical: 10,
+    borderRadius: 12,
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingHorizontal: 6,
+  },
+  primaryMenuBtnText: {
+    fontSize: fontScale(11.5),
+    fontWeight: '800',
+    color: colors.primary,
+  },
+  secondaryMenuBtn: {
     flex: 1,
     paddingVertical: 10,
     borderRadius: 12,
     alignItems: 'center',
     justifyContent: 'center',
     borderWidth: 0.5,
-    borderColor: '#e5e7eb',
+    borderColor: colors.border,
+    backgroundColor: colors.cardElevated,
   },
-  menuItemBtnText: {
-    fontSize: 11,
+  secondaryMenuBtnText: {
+    fontSize: fontScale(11.5),
     fontWeight: '800',
+    color: colors.text,
   },
   singleFullBtn: {
-    backgroundColor: '#f3f4f6',
+    backgroundColor: colors.cardElevated,
     paddingVertical: 10,
     borderRadius: 12,
     alignItems: 'center',
     justifyContent: 'center',
     borderWidth: 0.5,
-    borderColor: '#e5e7eb',
+    borderColor: colors.border,
     marginTop: 4,
   },
   singleFullBtnText: {
-    fontSize: 11,
+    fontSize: fontScale(11.5),
     fontWeight: '800',
-    color: '#374151',
+    color: colors.text,
   },
   signOutCard: {
     marginTop: 8,
   },
   signOutBtn: {
     width: '100%',
-    borderColor: '#ef4444',
+    backgroundColor: 'transparent',
+    borderColor: colors.toastErrorText,
+    borderWidth: 1.5,
+  },
+  signOutBtnText: {
+    color: colors.toastErrorText,
+    fontSize: fontScale(14),
   },
   subHeader: {
     flexDirection: 'row',
@@ -1053,15 +1119,15 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     paddingVertical: 14,
     borderBottomWidth: 1,
-    borderBottomColor: '#f3f4f6',
+    borderBottomColor: colors.border,
   },
   subBackBtn: {
     padding: 4,
   },
   subHeaderTitle: {
-    fontSize: 13,
+    fontSize: fontScale(14),
     fontWeight: '850',
-    color: '#1f2937',
+    color: colors.text,
   },
   backButtonPlaceholder: {
     width: 26,
@@ -1069,23 +1135,23 @@ const styles = StyleSheet.create({
   searchBarWrapper: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#f3f4f6',
+    backgroundColor: colors.cardElevated,
     borderRadius: 12,
     paddingHorizontal: 10,
     marginHorizontal: 16,
     marginVertical: 12,
     height: 38,
     borderWidth: 1,
-    borderColor: '#e5e7eb',
+    borderColor: colors.border,
   },
   searchIcon: {
     marginRight: 6,
   },
   searchBarInput: {
     flex: 1,
-    fontSize: 12.5,
+    fontSize: fontScale(12.5),
     fontWeight: '550',
-    color: '#1f2937',
+    color: colors.text,
     paddingVertical: 0,
   },
   listScrollContent: {
@@ -1094,14 +1160,14 @@ const styles = StyleSheet.create({
     gap: 12,
   },
   cropListCard: {
-    backgroundColor: '#ffffff',
+    backgroundColor: colors.card,
     borderWidth: 1,
-    borderColor: '#f3f4f6',
+    borderColor: colors.border,
     borderRadius: 20,
     overflow: 'hidden',
   },
   cropListCardActive: {
-    borderColor: '#059669',
+    borderColor: colors.primary,
   },
   cropListHeaderTap: {
     flexDirection: 'row',
@@ -1109,20 +1175,20 @@ const styles = StyleSheet.create({
     padding: 14,
   },
   cropListEmoji: {
-    fontSize: 22,
+    fontSize: fontScale(20),
     marginRight: 12,
   },
   cropListInfoCol: {
     flex: 1,
   },
   cropListTitle: {
-    fontSize: 12,
+    fontSize: fontScale(13),
     fontWeight: '800',
-    color: '#1f2937',
+    color: colors.text,
   },
   cropListSub: {
-    fontSize: 10,
-    color: '#6b7280',
+    fontSize: fontScale(11),
+    color: colors.subtext,
     marginTop: 2,
     fontWeight: '550',
   },
@@ -1132,37 +1198,37 @@ const styles = StyleSheet.create({
     gap: 8,
   },
   customCropRecipeBadge: {
-    backgroundColor: '#eff6ff',
+    backgroundColor: colors.toastInfoBg,
     borderWidth: 0.5,
-    borderColor: '#bfdbfe',
+    borderColor: colors.toastInfoText,
     paddingHorizontal: 5,
     paddingVertical: 2,
     borderRadius: 6,
   },
   customCropRecipeBadgeText: {
-    fontSize: 7,
+    fontSize: fontScale(9),
     fontWeight: '900',
-    color: '#2563eb',
+    color: colors.toastInfoText,
   },
   cropExpandedDetail: {
     borderTopWidth: 1,
-    borderTopColor: '#f9fafb',
-    backgroundColor: '#fafafa',
+    borderTopColor: colors.border,
+    backgroundColor: colors.background,
     padding: 14,
     gap: 12,
   },
   cropDetailDesc: {
-    fontSize: 10.5,
-    color: '#4b5563',
+    fontSize: fontScale(11.5),
+    color: colors.text,
     lineHeight: 15,
   },
   detailsMetaGrid: {
     flexDirection: 'row',
     flexWrap: 'wrap',
     gap: 8,
-    backgroundColor: '#ffffff',
+    backgroundColor: colors.cardElevated,
     borderWidth: 0.5,
-    borderColor: '#e5e7eb',
+    borderColor: colors.border,
     borderRadius: 12,
     padding: 10,
   },
@@ -1171,24 +1237,24 @@ const styles = StyleSheet.create({
     gap: 2,
   },
   detailMetaLabel: {
-    fontSize: 7.5,
+    fontSize: fontScale(9),
     fontWeight: '850',
-    color: '#9ca3af',
+    color: colors.subtext,
     textTransform: 'uppercase',
   },
   detailMetaVal: {
-    fontSize: 9.5,
+    fontSize: fontScale(11.5),
     fontWeight: '700',
-    color: '#374151',
+    color: colors.text,
   },
   detailMilestonesBlock: {
     gap: 10,
     marginTop: 4,
   },
   detailSectionLabel: {
-    fontSize: 9,
+    fontSize: fontScale(10.5),
     fontWeight: '900',
-    color: '#9ca3af',
+    color: colors.subtext,
     textTransform: 'uppercase',
   },
   mRowDetail: {
@@ -1199,13 +1265,13 @@ const styles = StyleSheet.create({
     width: 16,
     height: 16,
     borderRadius: 8,
-    backgroundColor: '#059669',
+    backgroundColor: colors.primary,
     alignItems: 'center',
     justifyContent: 'center',
     marginTop: 1,
   },
   mDotText: {
-    fontSize: 7,
+    fontSize: fontScale(8),
     fontWeight: '800',
     color: '#ffffff',
   },
@@ -1213,13 +1279,13 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   mTitleDetail: {
-    fontSize: 10,
+    fontSize: fontScale(11.5),
     fontWeight: '800',
-    color: '#1f2937',
+    color: colors.text,
   },
   mDescDetail: {
-    fontSize: 9,
-    color: '#6b7280',
+    fontSize: fontScale(10.5),
+    color: colors.subtext,
     lineHeight: 12,
     marginTop: 1,
   },
@@ -1233,28 +1299,28 @@ const styles = StyleSheet.create({
     paddingHorizontal: 12,
     borderRadius: 10,
     borderWidth: 1,
-    borderColor: '#fee2e2',
-    backgroundColor: '#fef2f2',
+    borderColor: colors.toastErrorBg === '#fef2f2' ? '#fee2e2' : colors.toastErrorText,
+    backgroundColor: colors.toastErrorBg,
     justifyContent: 'center',
     alignItems: 'center',
   },
   recipeDeleteText: {
-    fontSize: 10.5,
+    fontSize: fontScale(11.5),
     fontWeight: '800',
-    color: '#ef4444',
+    color: colors.toastErrorText,
   },
   sowStartBtn: {
     flex: 1,
-    backgroundColor: '#059669',
+    backgroundColor: colors.primary,
     paddingVertical: 10,
     borderRadius: 10,
     justifyContent: 'center',
     alignItems: 'center',
   },
   sowStartBtnText: {
-    fontSize: 11,
+    fontSize: fontScale(12),
     fontWeight: '800',
-    color: '#ffffff',
+    color: colors.primaryText,
   },
   formScrollContent: {
     padding: 16,
@@ -1265,20 +1331,20 @@ const styles = StyleSheet.create({
     gap: 6,
   },
   inputLabel: {
-    fontSize: 10,
+    fontSize: fontScale(11),
     fontWeight: '850',
-    color: '#6b7280',
+    color: colors.subtext,
     textTransform: 'uppercase',
   },
   formInput: {
     height: 38,
-    backgroundColor: '#ffffff',
+    backgroundColor: colors.cardElevated,
     borderWidth: 1.5,
-    borderColor: '#e5e7eb',
+    borderColor: colors.border,
     borderRadius: 10,
     paddingHorizontal: 10,
-    fontSize: 12.5,
-    color: '#1f2937',
+    fontSize: fontScale(12.5),
+    color: colors.text,
     fontWeight: '550',
   },
   textAreaInput: {
@@ -1293,36 +1359,36 @@ const styles = StyleSheet.create({
   selectBtnPill: {
     flex: 1,
     height: 34,
-    backgroundColor: '#f3f4f6',
+    backgroundColor: colors.cardElevated,
     borderWidth: 1,
-    borderColor: '#e5e7eb',
+    borderColor: colors.border,
     borderRadius: 12,
     alignItems: 'center',
     justifyContent: 'center',
   },
   selectBtnPillActive: {
-    backgroundColor: '#059669',
-    borderColor: '#059669',
+    backgroundColor: colors.primary,
+    borderColor: colors.primary,
   },
   selectBtnPillText: {
-    fontSize: 10.5,
+    fontSize: fontScale(11.5),
     fontWeight: '800',
-    color: '#4b5563',
+    color: colors.subtext,
     textTransform: 'capitalize',
   },
   selectBtnPillTextActive: {
-    color: '#ffffff',
+    color: colors.primaryText,
   },
   formTipCard: {
-    backgroundColor: '#eff6ff',
+    backgroundColor: colors.toastInfoBg,
     borderWidth: 0.5,
-    borderColor: '#bfdbfe',
+    borderColor: colors.toastInfoText,
     borderRadius: 12,
     padding: 12,
   },
   formTipText: {
-    fontSize: 9.5,
-    color: '#2563eb',
+    fontSize: fontScale(11),
+    color: colors.toastInfoText,
     lineHeight: 14,
     fontWeight: '550',
   },
@@ -1330,9 +1396,9 @@ const styles = StyleSheet.create({
     marginTop: 10,
   },
   historyCard: {
-    backgroundColor: '#ffffff',
+    backgroundColor: colors.card,
     borderWidth: 1,
-    borderColor: '#f3f4f6',
+    borderColor: colors.border,
     borderRadius: 20,
     padding: 16,
     gap: 10,
@@ -1346,27 +1412,27 @@ const styles = StyleSheet.create({
     width: 40,
     height: 40,
     borderRadius: 10,
-    backgroundColor: '#ecfdf5',
+    backgroundColor: colors.primaryLight,
     alignItems: 'center',
     justifyContent: 'center',
   },
   historyEmoji: {
-    fontSize: 18,
+    fontSize: fontScale(18),
   },
   historyTitle: {
-    fontSize: 11.5,
+    fontSize: fontScale(12.5),
     fontWeight: '800',
-    color: '#1f2937',
+    color: colors.text,
   },
   historySub: {
-    fontSize: 9.5,
-    color: '#059669',
+    fontSize: fontScale(11),
+    color: colors.primary,
     marginTop: 2,
     fontWeight: '700',
   },
   historyDivider: {
     height: 1,
-    backgroundColor: '#f3f4f6',
+    backgroundColor: colors.border,
   },
   historyGrid: {
     flexDirection: 'row',
@@ -1377,36 +1443,36 @@ const styles = StyleSheet.create({
     gap: 2,
   },
   historyGridLabel: {
-    fontSize: 7,
+    fontSize: fontScale(9),
     fontWeight: '850',
-    color: '#9ca3af',
+    color: colors.subtext,
     textTransform: 'uppercase',
   },
   historyGridVal: {
-    fontSize: 9,
+    fontSize: fontScale(11),
     fontWeight: '700',
-    color: '#374151',
+    color: colors.text,
   },
   addInvBtnRow: {
     paddingHorizontal: 16,
     paddingVertical: 10,
   },
   addInvButton: {
-    backgroundColor: '#059669',
+    backgroundColor: colors.primary,
     height: 36,
     borderRadius: 10,
     alignItems: 'center',
     justifyContent: 'center',
   },
   addInvButtonText: {
-    fontSize: 11.5,
+    fontSize: fontScale(12.5),
     fontWeight: '800',
-    color: '#ffffff',
+    color: colors.primaryText,
   },
   invCard: {
-    backgroundColor: '#ffffff',
+    backgroundColor: colors.card,
     borderWidth: 1,
-    borderColor: '#f3f4f6',
+    borderColor: colors.border,
     borderRadius: 18,
     padding: 12,
     flexDirection: 'row',
@@ -1422,25 +1488,25 @@ const styles = StyleSheet.create({
     gap: 8,
   },
   invName: {
-    fontSize: 11.5,
+    fontSize: fontScale(12.5),
     fontWeight: '800',
-    color: '#1f2937',
+    color: colors.text,
   },
   invTypeBadge: {
-    backgroundColor: '#f3f4f6',
+    backgroundColor: colors.cardElevated,
     paddingHorizontal: 5,
     paddingVertical: 2,
     borderRadius: 5,
   },
   invTypeBadgeText: {
-    fontSize: 7,
+    fontSize: fontScale(9),
     fontWeight: '700',
-    color: '#4b5563',
+    color: colors.subtext,
     textTransform: 'uppercase',
   },
   invLastUpdated: {
-    fontSize: 8.5,
-    color: '#9ca3af',
+    fontSize: fontScale(10),
+    color: colors.subtext,
     marginTop: 4,
     fontWeight: '600',
   },
@@ -1450,33 +1516,35 @@ const styles = StyleSheet.create({
     gap: 12,
   },
   invStockQty: {
-    fontSize: 12,
+    fontSize: fontScale(13),
     fontWeight: '900',
-    color: '#059669',
+    color: colors.primary,
   },
   invDeleteBtn: {
     padding: 4,
   },
   modalBackdrop: {
     flex: 1,
-    backgroundColor: 'rgba(0,0,0,0.5)',
+    backgroundColor: 'rgba(0,0,0,0.6)',
     justifyContent: 'center',
     padding: 24,
   },
   modalContent: {
-    backgroundColor: '#ffffff',
+    backgroundColor: colors.card,
     borderRadius: 24,
     padding: 20,
     gap: 16,
+    borderWidth: isDark ? 1 : 0,
+    borderColor: colors.border,
   },
   modalTitle: {
-    fontSize: 14,
+    fontSize: fontScale(15),
     fontWeight: '850',
-    color: '#1f2937',
+    color: colors.text,
     textTransform: 'uppercase',
     letterSpacing: 0.5,
     borderBottomWidth: 1,
-    borderBottomColor: '#f3f4f6',
+    borderBottomColor: colors.border,
     paddingBottom: 8,
   },
   modalInputGroup: {
@@ -1491,36 +1559,38 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   sowDialogContent: {
-    backgroundColor: '#ffffff',
+    backgroundColor: colors.card,
     borderRadius: 24,
     padding: 20,
     gap: 14,
+    borderWidth: isDark ? 1 : 0,
+    borderColor: colors.border,
   },
   sowDialogTitle: {
-    fontSize: 14,
+    fontSize: fontScale(15),
     fontWeight: '850',
-    color: '#1f2937',
+    color: colors.text,
     borderBottomWidth: 1,
-    borderBottomColor: '#f3f4f6',
+    borderBottomColor: colors.border,
     paddingBottom: 8,
   },
   sowDialogSub: {
-    fontSize: 11,
-    color: '#4b5563',
+    fontSize: fontScale(12),
+    color: colors.subtext,
     lineHeight: 16,
   },
   boldText: {
     fontWeight: '800',
-    color: '#059669',
+    color: colors.primary,
   },
   landsPickerContainer: {
     gap: 10,
     marginVertical: 4,
   },
   landSowPill: {
-    backgroundColor: '#f9fafb',
+    backgroundColor: colors.cardElevated,
     borderWidth: 1,
-    borderColor: '#e5e7eb',
+    borderColor: colors.border,
     borderRadius: 14,
     padding: 12,
     flexDirection: 'row',
@@ -1528,23 +1598,23 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   landSowPillActive: {
-    borderColor: '#059669',
-    backgroundColor: '#ecfdf5',
+    borderColor: colors.primary,
+    backgroundColor: colors.primaryLight,
   },
   landSowLabelCol: {
     flex: 1,
   },
   landSowName: {
-    fontSize: 11.5,
+    fontSize: fontScale(12.5),
     fontWeight: '800',
-    color: '#374151',
+    color: colors.text,
   },
   landSowNameActive: {
-    color: '#047857',
+    color: colors.primary,
   },
   landSowSub: {
-    fontSize: 9,
-    color: '#6b7280',
+    fontSize: fontScale(10.5),
+    color: colors.subtext,
     marginTop: 2,
     fontWeight: '600',
   },
@@ -1553,14 +1623,14 @@ const styles = StyleSheet.create({
     marginVertical: 4,
   },
   settingOptionLabel: {
-    fontSize: 9,
+    fontSize: fontScale(9),
     fontWeight: '850',
-    color: '#9ca3af',
+    color: colors.subtext,
     textTransform: 'uppercase',
   },
   segmentedRow: {
     flexDirection: 'row',
-    backgroundColor: '#f3f4f6',
+    backgroundColor: colors.cardElevated,
     borderRadius: 12,
     padding: 3,
   },
@@ -1571,7 +1641,7 @@ const styles = StyleSheet.create({
     borderRadius: 10,
   },
   segmentedBtnActive: {
-    backgroundColor: '#ffffff',
+    backgroundColor: colors.card,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 1 },
     shadowOpacity: 0.1,
@@ -1579,13 +1649,13 @@ const styles = StyleSheet.create({
     elevation: 1,
   },
   segmentedBtnText: {
-    fontSize: 10.5,
+    fontSize: fontScale(10.5),
     fontWeight: '700',
-    color: '#6b7280',
+    color: colors.subtext,
     textTransform: 'capitalize',
   },
   segmentedBtnTextActive: {
-    color: '#059669',
+    color: colors.primary,
     fontWeight: '800',
   },
   switchOptionRow: {
@@ -1599,13 +1669,13 @@ const styles = StyleSheet.create({
     marginRight: 12,
   },
   switchOptionTitle: {
-    fontSize: 11.5,
+    fontSize: fontScale(12.5),
     fontWeight: '800',
-    color: '#374151',
+    color: colors.text,
   },
   switchOptionDesc: {
-    fontSize: 9,
-    color: '#9ca3af',
+    fontSize: fontScale(10.5),
+    color: colors.subtext,
     marginTop: 2,
     fontWeight: '550',
   },
@@ -1625,7 +1695,7 @@ const styles = StyleSheet.create({
     borderColor: 'transparent',
   },
   colorCircleActive: {
-    borderColor: '#ffffff',
+    borderColor: colors.text,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.2,
@@ -1639,38 +1709,37 @@ const styles = StyleSheet.create({
     paddingVertical: 4,
   },
   aboutLabel: {
-    fontSize: 11,
+    fontSize: fontScale(12),
     fontWeight: '700',
-    color: '#4b5563',
+    color: colors.text,
   },
   aboutValue: {
-    fontSize: 11,
+    fontSize: fontScale(12),
     fontWeight: '600',
-    color: '#6b7280',
+    color: colors.subtext,
   },
   aboutLinkText: {
-    fontSize: 11,
+    fontSize: fontScale(12),
     fontWeight: '700',
-    color: '#059669',
+    color: colors.primary,
     textDecorationLine: 'underline',
   },
   resetDivider: {
     height: 1,
-    backgroundColor: '#f3f4f6',
+    backgroundColor: colors.border,
     marginVertical: 4,
   },
   resetBtn: {
-    borderColor: '#fee2e2',
-    borderWidth: 1,
-    backgroundColor: '#fef2f2',
+    backgroundColor: colors.toastErrorBg,
     borderRadius: 12,
     paddingVertical: 8,
     alignItems: 'center',
     justifyContent: 'center',
   },
   resetBtnText: {
-    fontSize: 11,
+    fontSize: fontScale(12),
     fontWeight: '850',
-    color: '#ef4444',
+    color: colors.toastErrorText,
   }
 });
+
