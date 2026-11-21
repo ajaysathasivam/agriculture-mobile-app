@@ -23,7 +23,7 @@ const soilTypes = [
   { id: 'other', nameTamil: 'இதர வகை', nameEnglish: 'Other Types / Misc', color: '#a8a29e', description: 'Sandy, gravelly, saline, or mixed soils suited for specialized cropping, forestry, or local plants.' }
 ];
 
-export const LandWizard = ({ step = 1, onNavigate }) => {
+export const LandWizard = ({ step = 1, onNavigate, onFinish, onCancel, isAddMode = false }) => {
   const [landName, setLandName] = useState('My Agricultural Land');
   const [landNameError, setLandNameError] = useState('');
   
@@ -74,11 +74,11 @@ export const LandWizard = ({ step = 1, onNavigate }) => {
     }
     setLandNameError('');
     saveLandToStore();
-    triggerToast(`Land "${landName}" added! Config next land.`, 'success');
+    triggerToast(`Land "${landName}" added! Configure next land.`, 'success');
     
     setTimeout(() => {
       resetOnboardingState();
-      setLandName('My Secondary Land');
+      setLandName('My Agricultural Land');
       onNavigate('land-wizard');
     }, 1200);
   };
@@ -90,12 +90,17 @@ export const LandWizard = ({ step = 1, onNavigate }) => {
     }
     setLandNameError('');
     saveLandToStore();
-    triggerToast('Land setup finalized successfully!', 'success');
+    triggerToast('Field registered successfully!', 'success');
     
     setTimeout(() => {
-      setHasCompletedWizard(true);
       resetOnboardingState();
-      // onNavigate will happen via App.js reacting to hasCompletedWizard
+      if (isAddMode && onFinish) {
+        // Return to dashboard's My Lands tab
+        onFinish();
+      } else {
+        // Initial onboarding — mark wizard done, App.js handles the navigation
+        setHasCompletedWizard(true);
+      }
     }, 1500);
   };
 
@@ -124,16 +129,20 @@ export const LandWizard = ({ step = 1, onNavigate }) => {
     if (step === 4) onNavigate('land-wizard-step3');
     else if (step === 3) onNavigate('land-wizard-step2');
     else if (step === 2) onNavigate('land-wizard');
-    // For step 1, maybe logout or do nothing? We will provide a skip button instead.
+    else if (step === 1 && isAddMode && onCancel) onCancel(); // Cancel add-field flow
   };
 
   return (
     <SafeAreaView style={styles.container}>
       {/* Header */}
       <View style={styles.header}>
-        {step > 1 ? (
+        {(step > 1 || isAddMode) ? (
           <TouchableOpacity onPress={handleBack} style={styles.backButton}>
-            <MaterialIcons name="arrow-back-ios" size={18} color="#6b7280" />
+            <MaterialIcons 
+              name={step === 1 && isAddMode ? "close" : "arrow-back-ios"} 
+              size={18} 
+              color="#6b7280" 
+            />
           </TouchableOpacity>
         ) : (
           <View style={styles.backButtonPlaceholder} />

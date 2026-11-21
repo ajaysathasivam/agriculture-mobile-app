@@ -8,7 +8,8 @@ import {
   TextInput,
   LayoutAnimation,
   Platform,
-  UIManager
+  UIManager,
+  KeyboardAvoidingView
 } from 'react-native';
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 import { Button } from '../components/Button';
@@ -85,7 +86,12 @@ export const HomeTab = ({ onNavigate }) => {
   };
 
   return (
-    <ScrollView style={styles.container} contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
+    <KeyboardAvoidingView 
+      behavior={Platform.OS === 'ios' ? 'padding' : 'height'} 
+      style={styles.container}
+      keyboardVerticalOffset={Platform.OS === 'ios' ? 90 : 0}
+    >
+      <ScrollView style={styles.container} contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
       
       {/* Weather Widget */}
       <View style={styles.weatherCard}>
@@ -429,7 +435,12 @@ export const HomeTab = ({ onNavigate }) => {
                       </View>
 
                       {/* Entries List */}
-                      <View style={styles.journalLogsList}>
+                      <ScrollView 
+                        style={styles.journalLogsList} 
+                        contentContainerStyle={styles.journalLogsListContent}
+                        nestedScrollEnabled={true}
+                        showsVerticalScrollIndicator={true}
+                      >
                         {(planted.journalLogs || []).map((entry, eIdx) => (
                           <View key={eIdx} style={styles.journalEntryItem}>
                             <View style={styles.journalEntryMeta}>
@@ -439,7 +450,7 @@ export const HomeTab = ({ onNavigate }) => {
                             <Text style={styles.journalEntryNote}>{entry.note}</Text>
                           </View>
                         ))}
-                      </View>
+                      </ScrollView>
 
                       {/* Add new entry input */}
                       <View style={styles.addJournalInputRow}>
@@ -471,7 +482,8 @@ export const HomeTab = ({ onNavigate }) => {
           </View>
         )}
       </View>
-    </ScrollView>
+      </ScrollView>
+    </KeyboardAvoidingView>
   );
 };
 
@@ -1164,7 +1176,8 @@ const getStyles = (colors, fontScale) => StyleSheet.create({
   },
   journalLogsList: {
     maxHeight: 120,
-    overflow: 'scroll',
+  },
+  journalLogsListContent: {
     gap: 8,
   },
   journalEntryItem: {

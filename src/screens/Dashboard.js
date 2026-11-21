@@ -17,10 +17,95 @@ import { TodoTab } from './TodoTab';
 import { LandsTab } from './LandsTab';
 import { ProfileTab } from './ProfileTab';
 
+// Import wizard screens for the "Add New Field" flow
+import { LandWizard } from './LandWizard';
+import { MapMeasurement } from './MapMeasurement';
+import { GpsMeasurement } from './GpsMeasurement';
+
 export const Dashboard = ({ onNavigate }) => {
   const [activeTab, setActiveTab] = useState('home'); // 'home' | 'todo' | 'lands' | 'profile'
+  
+  // Controls the "Register New Field" wizard overlay inside the dashboard
+  // null means dashboard is showing; a string means a wizard screen is active
+  const [addLandScreen, setAddLandScreen] = useState(null);
+  // null | 'land-wizard' | 'land-wizard-step2' | 'land-wizard-step3' | 'land-wizard-finalize' | 'map-measure' | 'gps-measure'
+
   const { colors, fontScale } = useTheme();
   const styles = getStyles(colors, fontScale);
+
+  // Called when user taps "Register New Field" from LandsTab
+  const handleStartAddField = () => {
+    setAddLandScreen('land-wizard');
+  };
+
+  // Internal navigate handler for the wizard overlay
+  const handleAddLandNavigate = (screen) => {
+    setAddLandScreen(screen);
+  };
+
+  // Called when the wizard finishes (Finish Setup button)
+  // Returns user to the My Lands tab
+  const handleAddLandFinish = () => {
+    setAddLandScreen(null);
+    setActiveTab('lands');
+  };
+
+  // Called when user cancels out of the add-field wizard
+  const handleAddLandCancel = () => {
+    setAddLandScreen(null);
+    setActiveTab('lands');
+  };
+
+  // If a wizard screen is active, render it full-screen instead of the dashboard
+  if (addLandScreen) {
+    if (addLandScreen === 'map-measure') {
+      return (
+        <MapMeasurement
+          onNavigate={(screen) => {
+            // After map measurement, go back to wizard step 1
+            if (screen === 'land-wizard') {
+              setAddLandScreen('land-wizard');
+            } else {
+              setAddLandScreen(screen);
+            }
+          }}
+        />
+      );
+    }
+
+    if (addLandScreen === 'gps-measure') {
+      return (
+        <GpsMeasurement
+          onNavigate={(screen) => {
+            if (screen === 'land-wizard') {
+              setAddLandScreen('land-wizard');
+            } else {
+              setAddLandScreen(screen);
+            }
+          }}
+        />
+      );
+    }
+
+    // All land-wizard steps
+    const wizardStepMap = {
+      'land-wizard': 1,
+      'land-wizard-step2': 2,
+      'land-wizard-step3': 3,
+      'land-wizard-finalize': 4,
+    };
+    const step = wizardStepMap[addLandScreen] || 1;
+
+    return (
+      <LandWizard
+        step={step}
+        onNavigate={handleAddLandNavigate}
+        onFinish={handleAddLandFinish}
+        onCancel={handleAddLandCancel}
+        isAddMode={true}
+      />
+    );
+  }
 
   const renderActiveTabContent = () => {
     switch (activeTab) {
@@ -29,7 +114,7 @@ export const Dashboard = ({ onNavigate }) => {
       case 'todo':
         return <TodoTab />;
       case 'lands':
-        return <LandsTab onNavigate={onNavigate} />;
+        return <LandsTab onNavigate={onNavigate} onAddField={handleStartAddField} />;
       case 'profile':
         return <ProfileTab onNavigate={onNavigate} />;
       default:
@@ -105,12 +190,12 @@ export const Dashboard = ({ onNavigate }) => {
           activeOpacity={0.8}
         >
           <MaterialIcons 
-            name="landscape" 
+            name="map" 
             size={24} 
             color={activeTab === 'lands' ? colors.primary : colors.subtext} 
           />
           <Text style={[styles.tabLabel, activeTab === 'lands' && styles.tabLabelActive]}>
-            Fields
+            My Lands
           </Text>
         </TouchableOpacity>
 
@@ -182,4 +267,3 @@ const getStyles = (colors, fontScale) => StyleSheet.create({
     color: colors.primary,
   }
 });
-

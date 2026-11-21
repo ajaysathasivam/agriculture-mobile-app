@@ -11,6 +11,7 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
+import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
 import { Formik } from 'formik';
 import * as Yup from 'yup';
 import { Input } from '../components/Input';
@@ -79,10 +80,16 @@ export const Register = ({ onNavigate }) => {
               contentContainerStyle={styles.scrollContent}
               showsVerticalScrollIndicator={false}
             >
-              {/* Header Title */}
+              {/* Logo & Branding */}
               <View style={styles.header}>
-                <Text style={styles.title}>Create Account</Text>
-                <Text style={styles.subtitle}>Join Sprout and start tracking your crop fields.</Text>
+                <View style={styles.logoBadge}>
+                  <MaterialCommunityIcons name="sprout" size={30} color="#ffffff" />
+                </View>
+                <Text style={styles.logoText}>Sprout</Text>
+                <Text style={styles.subtext}>SMART FARM PORTAL</Text>
+                <Text style={styles.description}>
+                  Join Sprout and start tracking your crop fields.
+                </Text>
               </View>
 
               {/* Form */}
@@ -135,21 +142,21 @@ export const Register = ({ onNavigate }) => {
                   leftIcon={<MaterialIcons name="lock" size={18} color="#9ca3af" />}
                 />
 
-                {/* Terms checkbox */}
-                <View style={styles.termsRow}>
-                  <TouchableOpacity 
-                    style={styles.checkboxContainer} 
-                    onPress={() => setAgreeTerms(!agreeTerms)}
-                    activeOpacity={0.8}
-                  >
-                    <View style={[styles.checkbox, agreeTerms && styles.checkboxChecked]}>
-                      {agreeTerms && <MaterialIcons name="check" size={12} color="#ffffff" />}
-                    </View>
-                    <Text style={styles.termsLabel}>
-                      I agree to the <Text style={styles.linkText}>Terms of Service</Text> and <Text style={styles.linkText}>Privacy Policy</Text>.
-                    </Text>
-                  </TouchableOpacity>
-                </View>
+                 {/* Terms checkbox */}
+                 <View style={styles.termsRow}>
+                   <TouchableOpacity 
+                     style={styles.checkboxContainer} 
+                     onPress={() => setAgreeTerms(!agreeTerms)}
+                     activeOpacity={0.8}
+                   >
+                     <View style={[styles.checkbox, agreeTerms && styles.checkboxChecked]}>
+                       {agreeTerms && <MaterialIcons name="check" size={12} color="#ffffff" />}
+                     </View>
+                     <Text style={styles.termsText}>
+                       I agree to the <Text style={styles.termsLink}>Terms of Service</Text> and <Text style={styles.termsLink}>Privacy Policy</Text>.
+                     </Text>
+                   </TouchableOpacity>
+                 </View>
 
                 <Button 
                   onPress={handleSubmit} 
@@ -243,6 +250,11 @@ const getStyles = (colors, fontScale) => StyleSheet.create({
     marginTop: 4,
     marginBottom: 24,
     paddingHorizontal: 4,
+  },
+  checkboxContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    flex: 1,
   },
   checkbox: {
     width: 18,

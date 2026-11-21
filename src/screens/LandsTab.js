@@ -11,7 +11,7 @@ import { Button } from '../components/Button';
 import { useStore } from '../store/useStore';
 import { useTheme } from '../store/useThemeStore';
 
-export const LandsTab = ({ onNavigate }) => {
+export const LandsTab = ({ onNavigate, onAddField }) => {
   const lands = useStore(state => state.lands);
   const removeLand = useStore(state => state.removeLand);
   const triggerToast = useStore(state => state.triggerToast);
@@ -91,7 +91,7 @@ export const LandsTab = ({ onNavigate }) => {
         </View>
       )}
 
-      <Button style={styles.registerBtn} onPress={() => onNavigate('land-wizard')}>
+      <Button style={styles.registerBtn} onPress={() => onAddField && onAddField()}>
         ＋ Register New Field
       </Button>
     </ScrollView>
